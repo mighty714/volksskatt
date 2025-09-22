@@ -6,3 +6,59 @@
 :root {
   --brand: #0ea5e9;
 }
+
+/* Water ripple hover effect */
+.hover-ripple {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.hover-ripple::after {
+  content: '';
+  position: absolute;
+  inset: auto;
+  left: 50%;
+  top: 50%;
+  width: 24rem;
+  height: 24rem;
+  transform: translate(-50%, -50%) scale(0);
+  opacity: 0;
+  border-radius: 9999px;
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.15) 30%, rgba(255,255,255,0) 60%);
+  transition: transform 600ms ease, opacity 800ms ease;
+}
+.hover-ripple:hover::after {
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
+}
+
+/* Shine sweep effect for cards/images */
+.hover-shine {
+  position: relative;
+  overflow: hidden;
+}
+.hover-shine::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -150%;
+  height: 100%;
+  width: 50%;
+  transform: skewX(-20deg);
+  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.35) 50%, rgba(255,255,255,0) 100%);
+  transition: left 700ms ease;
+}
+.hover-shine:hover::before {
+  left: 150%;
+}
+
+/* Subtle 3D tilt on hover */
+.hover-tilt-small {
+  transform-style: preserve-3d;
+  transition: transform 400ms ease;
+}
+.hover-tilt-small:hover {
+  transform: perspective(900px) rotateX(2.2deg) rotateY(-2.2deg) scale(1.02);
+}
+

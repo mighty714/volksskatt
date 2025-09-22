@@ -1,6 +1,8 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/Layout'
 import Login from './pages/Login'
+import Home from './pages/Home'
+import Dashboard from './pages/Dashboard'
 import Clock from './pages/Clock'
 import Attendance from './pages/Attendance'
 import Jobs from './pages/Jobs'
@@ -9,7 +11,6 @@ import Interviews from './pages/Interviews'
 import Documents from './pages/Documents'
 import Offers from './pages/Offers'
 import { isAuthenticated } from './services/auth'
-import Dashboard from './pages/Dashboard'
 
 function ProtectedRoute({ children }) {
   if (!isAuthenticated()) {
@@ -23,15 +24,19 @@ export default function App() {
     <Routes>
       <Route path="/login" element={<Login />} />
 
+      {/* Public Home */}
+      <Route path="/" element={<Home />} />
+
+      {/* Protected App under /app */}
       <Route
-        path="/"
+        path="/app"
         element={
           <ProtectedRoute>
             <Layout />
           </ProtectedRoute>
         }
       >
-        <Route index element={<Navigate to="/dashboard" replace />} />
+        <Route index element={<Navigate to="/app/clock" replace />} />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="clock" element={<Clock />} />
         <Route path="attendance" element={<Attendance />} />
