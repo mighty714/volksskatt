@@ -9,19 +9,33 @@ const sections = [
   { id: 'contact', label: 'Contact Us' },
 ]
 
+// Sub-navigation items for the About section
+const aboutTabs = [
+  { id: 'about-meet', label: 'Meet Volksskatt' },
+  { id: 'about-numbers', label: 'Progress in Numbers' },
+  { id: 'about-values', label: 'Living Our Values' },
+  { id: 'about-purpose', label: 'Our Purpose' },
+  { id: 'about-journey', label: 'Our Journey' },
+  { id: 'about-stories', label: 'Stories of Progress' },
+]
+
 export default function Home() {
   const navigate = useNavigate()
   const refs = useRef(Object.fromEntries(sections.map(s => [s.id, null])))
   const [active, setActive] = useState('home')
+  const [aboutActive, setAboutActive] = useState(aboutTabs[0].id)
+  const [showAboutNav, setShowAboutNav] = useState(false)
+  const [numbersStarted, setNumbersStarted] = useState(false)
   // Simple image carousel state for hero
   const slides = [
     {
-      img: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=2400&auto=format&fit=crop',
-      title: 'Build Faster. Ship Smarter.',
-      caption: 'Cloud‑native engineering and scalable architectures for modern products.',
+      // IT-themed corporate hero (clean, high-contrast)
+      img: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=2400&auto=format&fit=crop',
+      title: 'Engineering Excellence.',
+      caption: 'IT companies’ best interview questions for real‑world problem solving.',
     },
     {
-      img: 'https://images.unsplash.com/photo-1518779578993-ec3579fee39f?q=80&w=2400&auto=format&fit=crop',
+      img: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?q=80&w=2400&auto=format&fit=crop',
       title: 'Automate Everything.',
       caption: 'CI/CD, observability, and DevOps practices that keep you moving.',
     },
@@ -70,19 +84,90 @@ export default function Home() {
     return () => observer.disconnect()
   }, [])
 
+  // Start numbers animation when 'Progress in Numbers' tab becomes active
+  useEffect(() => {
+    if (aboutActive === 'about-numbers') setNumbersStarted(true)
+  }, [aboutActive])
+
+  // Simple count-up hook
+  const useCountUp = (to, active, duration = 1200) => {
+    const [val, setVal] = useState(0)
+    useEffect(() => {
+      if (!active) return
+      let raf = 0
+      const start = performance.now()
+      const animate = (t) => {
+        const p = Math.min(1, (t - start) / duration)
+        setVal(Math.floor(to * p))
+        if (p < 1) raf = requestAnimationFrame(animate)
+      }
+      raf = requestAnimationFrame(animate)
+      return () => cancelAnimationFrame(raf)
+    }, [to, active, duration])
+    return val
+  }
+
   // Show dots only when user has moved on the home section; no autoplay
   useEffect(() => {
     const onScroll = () => {
       const y = window.scrollY || document.documentElement.scrollTop
-      setShowDots(active === 'home' && y > 40)
+      // Show dots whenever Home section is the active/fitted section
+      setShowDots(active === 'home')
       setShowScrollTop(y > 120)
       // Hide nav items when leaving the home top or after slight scroll
       setNavHidden(!(active === 'home' && y < 20))
+
+      // Toggle About sticky sub-nav strictly based on sidebar active section
+      const headerEl = document.querySelector('header')
+      const headerOffset = (headerEl?.offsetHeight ?? 64)
+      setShowAboutNav(active === 'about')
+
+      // Determine which top-level section is currently active based on viewport and header
+      let bestId = active
+      let bestDist = Infinity
+      sections.forEach((s) => {
+        const el = document.getElementById(s.id)
+        if (!el) return
+        const r = el.getBoundingClientRect()
+        // section considered when it overlaps area below the header
+        const overlaps = r.bottom > headerOffset + 8 && r.top < window.innerHeight * 0.6
+        const dist = Math.abs(r.top - headerOffset)
+        if (overlaps && dist < bestDist) {
+          bestDist = dist
+          bestId = s.id
+        }
+      })
+      if (bestId !== active) setActive(bestId)
     }
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [active])
+
+  // Scroll spy for About tabs
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setAboutActive(entry.target.id)
+          }
+        })
+      },
+      {
+        root: null,
+        rootMargin: '0px 0px -55% 0px',
+        threshold: 0.4,
+      }
+    )
+
+    aboutTabs.forEach((t) => {
+      const el = document.getElementById(t.id)
+      if (el) observer.observe(el)
+    })
+
+    return () => observer.disconnect()
+  }, [])
 
   return (
     <div className="min-h-screen relative text-white">
@@ -112,8 +197,10 @@ export default function Home() {
               <button
                 key={s.id}
                 onClick={() => scrollTo(s.id)}
-                className={`px-3 py-1.5 rounded-full transition-colors ${
-                  active === s.id ? 'bg-white/20 text-amber-200' : 'text-white/80 hover:text-white'
+                className={`px-3 py-1.5 rounded-full focus:outline-none focus-visible:outline-none ${
+                  active === s.id
+                    ? (s.id === 'home' ? 'text-white/80' : 'bg-white/20 text-amber-200')
+                    : 'text-white/80'
                 }`}
                 aria-current={active === s.id ? 'page' : undefined}
               >
@@ -121,22 +208,27 @@ export default function Home() {
               </button>
             ))}
           </nav>
-          <div className={`flex items-center gap-2 transition-opacity duration-300 ${navHidden ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-            {/* Circular menu icon */}
+          <div className="flex items-center gap-2">
+            {/* Circular menu icon (always visible; 3-color theme)
+               - Top (hero): light pill, dark bars
+               - Scrolled: dark pill, white bars
+               - Open: amber pill, dark "×" */}
             <button
               aria-label="Menu"
               onClick={() => setMenuOpen(true)}
-              className="h-9 w-9 rounded-full bg-white/90 hover:bg-white grid place-items-center shadow"
+              className={`h-9 w-9 rounded-full grid place-items-center shadow transition-colors ${
+                menuOpen ? 'bg-amber-400 text-slate-900' : navHidden ? 'bg-slate-900 text-white' : 'bg-white/90 hover:bg-white text-slate-900'
+              }`}
             >
               <span className="sr-only">Menu</span>
               {!menuOpen ? (
                 <span className="flex flex-col items-center gap-1">
-                  <span className="block h-0.5 w-4 bg-slate-900"></span>
-                  <span className="block h-0.5 w-3 bg-slate-900"></span>
-                  <span className="block h-0.5 w-5 bg-slate-900"></span>
+                  <span className={`block h-0.5 w-4 ${navHidden ? 'bg-white' : 'bg-slate-900'}`}></span>
+                  <span className={`block h-0.5 w-3 ${navHidden ? 'bg-white' : 'bg-slate-900'}`}></span>
+                  <span className={`block h-0.5 w-5 ${navHidden ? 'bg-white' : 'bg-slate-900'}`}></span>
                 </span>
               ) : (
-                <span className="text-slate-900 text-lg">×</span>
+                <span className={`text-lg ${'text-slate-900'}`}>×</span>
               )}
             </button>
           </div>
@@ -207,17 +299,24 @@ export default function Home() {
       <aside className="fixed left-3 top-1/2 -translate-y-1/2 hidden sm:flex flex-col items-start gap-3 z-10">
         {sections
           .filter((s) => s.id === active) // only show current section heading
-          .map((s) => (
-            <button
-              key={s.id}
-              onClick={() => scrollTo(s.id)}
-              className="group flex items-center gap-2 text-xs rounded-full px-3 py-1.5 bg-white/15 text-white backdrop-blur border border-white/10 shadow"
-              aria-current="true"
-            >
-              <span className="h-px w-8 bg-white" />
-              <span className="hidden md:inline">{s.label}</span>
-            </button>
-          ))}
+          .map((s) => {
+            const onLight = ['about','services','career','contact'].includes(active)
+            const base = onLight
+              ? 'bg-slate-900/90 text-white border-slate-800'
+              : 'bg-white/15 text-white border-white/10'
+            const line = onLight ? 'bg-white' : 'bg-white'
+            return (
+              <button
+                key={s.id}
+                onClick={() => scrollTo(s.id)}
+                className={`group flex items-center gap-2 text-xs rounded-full px-3 py-1.5 backdrop-blur border shadow ${base} focus:outline-none focus-visible:outline-none`}
+                aria-current="true"
+              >
+                <span className={`h-px w-8 ${line}`} />
+                <span className="hidden md:inline">{s.label}</span>
+              </button>
+            )
+          })}
       </aside>
 
       {/* Sections */}
@@ -284,21 +383,135 @@ export default function Home() {
           </button>
         )}
 
-        {/* About section with light, decent colors (updated palette) */}
-        <section id="about" className="min-h-[60vh] px-6 py-16 scroll-mt-24 bg-gradient-to-b from-teal-50 via-sky-50 to-indigo-50 text-slate-900">
-          <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-8 items-center">
-            <img
-              src="https://images.unsplash.com/photo-1529336953121-ad5a0d43d0d2?q=80&w=1600&auto=format&fit=crop"
-              alt="Team collaboration"
-              className="rounded-xl shadow-lg object-cover w-full h-72 md:h-96 transition-transform duration-500 ease-out hover:scale-[1.03] hover-shine hover-tilt-small hover-ripple"
-              loading="lazy"
-            />
-            <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xl">
-              <h2 className="text-3xl font-bold mb-3 text-slate-900">About</h2>
-              <p className="text-slate-700">
-                We are an IT-first product studio focused on performance, accessibility, and clean engineering.
-                Our ideology: ship small, iterate fast, measure relentlessly, and delight users.
-              </p>
+        {/* About section with sticky sub-navigation (like the screenshot) */}
+        <section id="about" className="min-h-[60vh] px-0 md:px-0 py-0 scroll-mt-24 bg-gradient-to-b from-teal-50 via-sky-50 to-indigo-50 text-slate-900">
+          {/* Sticky sub-nav: only show when About section is active */}
+          {showAboutNav && (
+            <div className="sticky top-14 md:top-16 z-10 bg-white/90 backdrop-blur border-b border-slate-200">
+              <div className="max-w-6xl mx-auto px-4">
+                <nav className="flex gap-14 md:gap-16 overflow-x-auto no-scrollbar text-sm md:text-base">
+                  {aboutTabs.map((t) => (
+                    <button
+                      key={t.id}
+                      onClick={() => scrollTo(t.id)}
+                      className={`relative py-4 whitespace-nowrap text-slate-700 border-b-2 transition-colors focus:outline-none focus-visible:outline-none after:content-[\"\"] after:absolute after:left-0 after:-bottom-0.5 after:h-0.5 after:bg-purple-600 ${
+                        aboutActive === t.id ? 'text-slate-900 border-purple-600 after:w-full w-max' : 'border-transparent after:w-0'
+                      }`}
+                      aria-current={aboutActive === t.id ? 'page' : undefined}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                </nav>
+              </div>
+            </div>
+          )}
+
+          {/* Content blocks for each About sub-section */}
+          <div className="max-w-6xl mx-auto px-6 py-12 space-y-20">
+            {/* Meet */}
+            <div id="about-meet" className="grid md:grid-cols-2 gap-8 items-center scroll-mt-24">
+              {/* Text first, video on the right to resemble screenshot (no card background) */}
+              <div className="py-4">
+                <h2 className="text-4xl md:text-5xl font-bold mb-6 text-slate-900">Meet Volksskatt</h2>
+                <div className="space-y-5 text-slate-700 leading-relaxed text-lg">
+                  <p>
+                    We are a global technology company, home to talented people across many countries, delivering industry-leading
+                    capabilities centered around digital, engineering, cloud and AI, powered by a broad portfolio of technology services
+                    and products.
+                  </p>
+                  <p>
+                    We work with clients across all major verticals, providing industry solutions for Financial Services, Manufacturing,
+                    Life Sciences and Healthcare, High Tech, Semiconductor, Telecom and Media, Retail and CPG and Public Services.
+                    Consolidated revenues as of 12 months ending June 2025 totaled $14 billion.
+                  </p>
+                </div>
+              </div>
+              <div className="rounded-xl overflow-hidden shadow-lg">
+                <img
+                  src="https://images.unsplash.com/photo-1531297484001-80022131f5a1?q=80&w=1600&auto=format&fit=crop"
+                  alt="Volksskatt company preview"
+                  className="w-full h-72 md:h-96 object-cover"
+                  loading="lazy"
+                />
+              </div>
+            </div>
+
+            {/* Numbers */}
+            <div id="about-numbers" className="scroll-mt-24">
+              {/* Full-bleed dark band (no rounded card) */}
+              <div className="relative left-1/2 right-1/2 -mx-[50vw] w-screen bg-[#0b0f12] text-white overflow-hidden">
+                {/* subtle vignette and gradient sweep */}
+                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(80%_60%_at_30%_10%,rgba(99,102,241,0.15),transparent_60%)]" />
+                <div className="relative max-w-6xl mx-auto grid md:grid-cols-1 gap-8 p-6 md:p-10">
+                  {/* Left: title, copy, metrics */}
+                  <div>
+                    <h3 className="text-3xl md:text-4xl font-semibold mb-4">Progress in Numbers</h3>
+                    <p className="text-slate-300 max-w-2xl mb-8">
+                      Powered by a global team, we deliver smarter, better ways for all our stakeholders to benefit from technology.
+                    </p>
+
+                    <div className="grid sm:grid-cols-3 gap-6 md:gap-8">
+                      {[
+                        { k: 'Revenue', value: 14, prefix: '$', suffix: ' B' },
+                        { k: 'People', value: 223, suffix: 'K' },
+                        { k: 'Countries', value: 60, suffix: '' },
+                        { k: 'Nationalities', value: 167, suffix: '' },
+                        { k: 'Delivery Centers', value: 220, suffix: '+' },
+                        { k: 'Labs', value: 70, suffix: '+' },
+                        { k: 'Clients using our software and products', value: 20000, suffix: '+' },
+                        { k: 'Patents driving innovations', value: 2200, suffix: '+' },
+                        { k: 'Top employer in twenty-six countries', value: 26, suffix: '' },
+                      ].map((m) => {
+                        const n = useCountUp(m.value, numbersStarted, 1200)
+                        const formatted = n.toLocaleString()
+                        return (
+                          <div key={m.k} className="flex flex-col">
+                            <div className="text-3xl md:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-sky-400 via-indigo-400 to-fuchsia-400 bg-clip-text text-transparent">
+                              {`${m.prefix ?? ''}${formatted}${m.suffix ?? ''}`}
+                            </div>
+                            <div className="text-xs md:text-sm text-slate-400 mt-1 leading-snug">{m.k}</div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Values */}
+            <div id="about-values" className="scroll-mt-24">
+              <h3 className="text-2xl font-semibold mb-4">Living Our Values</h3>
+              <p className="text-slate-700 max-w-3xl">Craft, curiosity, and customer empathy drive our decisions. We obsess over DX and UX equally.</p>
+            </div>
+
+            {/* Purpose */}
+            <div id="about-purpose" className="scroll-mt-24">
+              <h3 className="text-2xl font-semibold mb-4">Our Purpose</h3>
+              <p className="text-slate-700 max-w-3xl">Build resilient, ethical software that empowers people and businesses to do their best work.</p>
+            </div>
+
+            {/* Journey */}
+            <div id="about-journey" className="scroll-mt-24">
+              <h3 className="text-2xl font-semibold mb-4">Our Journey</h3>
+              <p className="text-slate-700 max-w-3xl">From a small dev shop to a trusted engineering partner across domains and geographies.</p>
+            </div>
+
+            {/* Stories */}
+            <div id="about-stories" className="scroll-mt-24">
+              <h3 className="text-2xl font-semibold mb-4">Stories of Progress</h3>
+              <div className="grid md:grid-cols-3 gap-6">
+                {[1,2,3].map((i)=> (
+                  <div key={i} className="group bg-white rounded-xl overflow-hidden shadow border border-slate-200 hover-tilt-small hover-ripple">
+                    <img src={`https://picsum.photos/seed/story${i}/640/360`} alt="story" className="h-40 w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.05] hover-shine"/>
+                    <div className="p-4">
+                      <div className="font-semibold">Case Study #{i}</div>
+                      <div className="text-sm text-slate-600">How we shipped measurable outcomes.</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </section>

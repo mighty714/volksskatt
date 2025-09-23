@@ -62,3 +62,13 @@
   transform: perspective(900px) rotateX(2.2deg) rotateY(-2.2deg) scale(1.02);
 }
 
+
+/* Hide scrollbar utility (while still scrollable) */
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
