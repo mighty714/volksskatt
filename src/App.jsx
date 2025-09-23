@@ -2,6 +2,8 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/Layout'
 import Login from './pages/Login'
 import Home from './pages/Home'
+import Jobspost from './pages/Jobspost'
+import CareersHome from './pages/CareersHome'
 import Dashboard from './pages/Dashboard'
 import Clock from './pages/Clock'
 import Attendance from './pages/Attendance'
@@ -26,6 +28,8 @@ export default function App() {
 
       {/* Public Home */}
       <Route path="/" element={<Home />} />
+      <Route path="/jobspost" element={<Jobspost />} />
+      <Route path="/careers" element={<CareersHome />} />
 
       {/* Protected App under /app */}
       <Route

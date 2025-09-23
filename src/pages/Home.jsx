@@ -14,7 +14,7 @@ const aboutTabs = [
   { id: 'about-meet', label: 'Meet Volksskatt' },
   { id: 'about-numbers', label: 'Progress in Numbers' },
   { id: 'about-values', label: 'Living Our Values' },
-  { id: 'about-purpose', label: 'Our Purpose' },
+  { id: 'about-approach', label: 'Our Approach' },
   { id: 'about-journey', label: 'Our Journey' },
   { id: 'about-stories', label: 'Stories of Progress' },
 ]
@@ -50,6 +50,7 @@ export default function Home() {
   const [showScrollTop, setShowScrollTop] = useState(false)
   const [navHidden, setNavHidden] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [careerOpen, setCareerOpen] = useState(false)
   const prevSlide = () => setSlide((s) => (s - 1 + slides.length) % slides.length)
   const nextSlide = () => setSlide((s) => (s + 1) % slides.length)
 
@@ -173,21 +174,21 @@ export default function Home() {
     <div className="min-h-screen relative text-white">
       {/* No global background color for Home page */}
       {/* Top horizontal navbar minimized on scroll: logo persists, items fade (overlay, no background) */}
-      <header className="fixed top-0 left-0 right-0 z-20 text-white">
+      <header className={`fixed top-0 left-0 right-0 z-20 text-white`}>
         <div className="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between transition-all">
-          <div className={`flex items-center gap-2 transform transition-transform duration-300 ${navHidden ? 'translate-y-4' : ''}`}>
+          <div className={`flex items-center gap-2 transition-opacity duration-300 ${active === 'home' ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
             <div className="relative w-12 h-12 drop-shadow-[0_2px_6px_rgba(0,0,0,0.45)]">
               <img
                 src="/logo.png"
                 alt="volksskatt logo"
-                className="absolute inset-0 w-full h-full object-contain"
+                className="absolute inset-0 w-full h-full object-contain scale-[1.18]"
               />
-              <span className="absolute inset-0 flex items-center justify-start pl-[30px] -translate-x-[3px] -translate-y-[-9px] pointer-events-none text-[15px] md:text-base font-semibold tracking-wide text-white drop-shadow">
+              <span className="absolute inset-0 flex items-center justify-start pl-[30px] -translate-x-[3px] -translate-y-[-9px] pointer-events-none text-[17px] md:text-lg font-semibold tracking-wide text-white drop-shadow">
                 volksskatt
               </span>
             </div>
             <span className="hidden sm:flex -ml-3 flex-col leading-none text-white/90 drop-shadow-sm mt-[3px]">
-              <span className="font-medium tracking-wider text-[9px] md:text-sm opacity-90 mt-[40px] ml-6 md:ml-17">infotech</span>
+              <span className="font-medium tracking-wider text-[11px] md:text-base opacity-90 mt-[40px] ml-6 md:ml-17">infotech</span>
             </span>
           </div>
           {/* Text-based nav (fades out when navHidden). No background at start */}
@@ -208,7 +209,7 @@ export default function Home() {
               </button>
             ))}
           </nav>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             {/* Circular menu icon (always visible; 3-color theme)
                - Top (hero): light pill, dark bars
                - Scrolled: dark pill, white bars
@@ -267,20 +268,56 @@ export default function Home() {
                   { id: 'contact', label: 'Contact Us' },
                   { id: 'login', label: 'Login' },
                 ].map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => {
-                      setMenuOpen(false)
-                      if (item.id === 'login') {
-                        navigate('/login')
-                      } else {
-                        scrollTo(item.id)
-                      }
-                    }}
-                    className="block w-full text-left text-lg font-semibold"
-                  >
-                    {item.label}
-                  </button>
+                  item.id === 'career' ? (
+                    <div key={item.id} className="space-y-2">
+                      <button
+                        onClick={() => setCareerOpen((v) => !v)}
+                        className="w-full flex items-center justify-between text-left text-lg font-semibold"
+                        aria-expanded={careerOpen}
+                        aria-controls="career-submenu"
+                      >
+                        <span>{item.label}</span>
+                        <span className={`transition-transform ${careerOpen ? 'rotate-180' : ''}`}>▾</span>
+                      </button>
+                      {careerOpen && (
+                        <div id="career-submenu" className="pl-4">
+                          <button
+                            onClick={() => {
+                              setMenuOpen(false)
+                              navigate('/careers')
+                            }}
+                            className="block w-full text-left text-base text-slate-700 hover:text-slate-900"
+                          >
+                            Careers Home
+                          </button>
+                          <button
+                            onClick={() => {
+                              setMenuOpen(false)
+                              navigate('/jobspost')
+                            }}
+                            className="block w-full text-left text-base text-slate-700 hover:text-slate-900"
+                          >
+                            Serch for Jobs
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <button
+                      key={item.id}
+                      onClick={() => {
+                        setMenuOpen(false)
+                        if (item.id === 'login') {
+                          navigate('/login')
+                        } else {
+                          scrollTo(item.id)
+                        }
+                      }}
+                      className="block w-full text-left text-lg font-semibold"
+                    >
+                      {item.label}
+                    </button>
+                  )
                 ))}
                 <div className="pt-4 text-slate-600 text-sm">
                   <div className="font-semibold mb-2">volksskatt</div>
@@ -387,7 +424,7 @@ export default function Home() {
         <section id="about" className="min-h-[60vh] px-0 md:px-0 py-0 scroll-mt-24 bg-gradient-to-b from-teal-50 via-sky-50 to-indigo-50 text-slate-900">
           {/* Sticky sub-nav: only show when About section is active */}
           {showAboutNav && (
-            <div className="sticky top-14 md:top-16 z-10 bg-white/90 backdrop-blur border-b border-slate-200">
+            <div className="sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-slate-200">
               <div className="max-w-6xl mx-auto px-4">
                 <nav className="flex gap-14 md:gap-16 overflow-x-auto no-scrollbar text-sm md:text-base">
                   {aboutTabs.map((t) => (
@@ -467,7 +504,7 @@ export default function Home() {
                         const formatted = n.toLocaleString()
                         return (
                           <div key={m.k} className="flex flex-col">
-                            <div className="text-3xl md:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-sky-400 via-indigo-400 to-fuchsia-400 bg-clip-text text-transparent">
+                            <div className="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-sky-300 via-indigo-300 to-fuchsia-300 bg-clip-text text-transparent drop-shadow">
                               {`${m.prefix ?? ''}${formatted}${m.suffix ?? ''}`}
                             </div>
                             <div className="text-xs md:text-sm text-slate-400 mt-1 leading-snug">{m.k}</div>
@@ -476,20 +513,195 @@ export default function Home() {
                       })}
                     </div>
                   </div>
+
+                  {/* Right: animated decorative globe (md+) */}
+                  <div className="hidden md:block pointer-events-none select-none" aria-hidden="true">
+                    <div className="absolute right-6 top-1/2 -translate-y-1/2 opacity-60">
+                      {/* soft glow behind */}
+                      <div className="absolute inset-0 blur-2xl rounded-full bg-cyan-500/10 w-[460px] h-[460px] translate-x-6 translate-y-6" />
+                      <svg width="440" height="440" viewBox="0 0 440 440" fill="none" xmlns="http://www.w3.org/2000/svg"
+                        className="animate-spin" style={{ animationDuration: '22s' }}>
+                        <defs>
+                          <radialGradient id="glo" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stopColor="#60a5fa" stopOpacity="0.35"/>
+                            <stop offset="60%" stopColor="#0ea5e9" stopOpacity="0.2"/>
+                            <stop offset="100%" stopColor="#0ea5e9" stopOpacity="0"/>
+                          </radialGradient>
+                        </defs>
+                        <circle cx="220" cy="220" r="200" stroke="url(#glo)" strokeWidth="1.2"/>
+                        {/* latitude lines */}
+                        {[ -60,-30,0,30,60 ].map((lat, i) => (
+                          <ellipse key={i} cx="220" cy="220" rx={200*Math.cos(Math.PI*lat/180)} ry={200*Math.sin(Math.PI*30/180)} stroke="#38bdf8" strokeOpacity="0.25" strokeWidth="0.8" fill="none" />
+                        ))}
+                        {/* longitude lines */}
+                        {[0,30,60,90,120,150].map((deg, i) => (
+                          <path key={i} d={`M 220 20 A 200 200 0 0 1 220 420`} stroke="#60a5fa" strokeOpacity="0.18" strokeWidth="0.8" fill="none" transform={`rotate(${deg} 220 220)`} />
+                        ))}
+                      </svg>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* Values */}
             <div id="about-values" className="scroll-mt-24">
-              <h3 className="text-2xl font-semibold mb-4">Living Our Values</h3>
-              <p className="text-slate-700 max-w-3xl">Craft, curiosity, and customer empathy drive our decisions. We obsess over DX and UX equally.</p>
+              <h3 className="text-3xl md:text-4xl font-semibold mb-2 text-slate-900">Living Our Values</h3>
+              <p className="text-slate-700 max-w-3xl mb-8">
+                Our <span className="font-semibold">core values</span> offer a nod to the past with an eye to the future
+              </p>
+
+              {/* First row: 3 cards */}
+              <div className="grid md:grid-cols-3 gap-6 md:gap-7">
+                {[
+                  {
+                    title: 'Integrity',
+                    body:
+                      'We maintain the highest ethical standards and are committed to doing the right thing, all the time.',
+                  },
+                  {
+                    title: 'Inclusion',
+                    body:
+                      'We create an environment where everyone can succeed and be encouraged to be their best and most authentic selves. We believe in providing equal access and opportunities to all.',
+                  },
+                  {
+                    title: 'Value Creation',
+                    body:
+                      "We’re obsessed with creating value for our clients and supercharging their progress in a secure manner. We always go the extra mile to deliver on our commitments and identify new opportunities for growth.",
+                  },
+                ].map((c) => (
+                  <div
+                    key={c.title}
+                    className="group rounded-xl bg-white border border-slate-200 shadow-sm p-6 md:p-7 min-h-[220px] transition-all duration-300 ease-out hover:bg-slate-900 hover:border-slate-800 hover:shadow-lg hover:-rotate-1"
+                  >
+                    <div className="font-semibold text-slate-900 mb-2 transition-colors group-hover:text-white">{c.title}</div>
+                    <p className="text-slate-700 text-sm leading-relaxed transition-colors group-hover:text-white/90">{c.body}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Second row: 2 cards centered */}
+              <div className="mt-6 grid md:grid-cols-2 gap-6 md:gap-7 max-w-4xl">
+                {[
+                  {
+                    title: 'People–centricity',
+                    body:
+                      'We encourage our people to “find their spark” and shape their career journeys. We empower people to be entrepreneurs and creators, encouraging them to surface ideas, big and small.',
+                  },
+                  {
+                    title: 'Social Responsibility',
+                    body:
+                      'We give back to our communities, and we are focused on doing the right things for our planet and the communities where we work and live.',
+                  },
+                ].map((c) => (
+                  <div
+                    key={c.title}
+                    className="group rounded-xl bg-white border border-slate-200 shadow-sm p-6 md:p-7 min-h-[220px] transition-all duration-300 ease-out hover:bg-slate-900 hover:border-slate-800 hover:shadow-lg hover:-rotate-1"
+                  >
+                    <div className="font-semibold text-slate-900 mb-2 transition-colors group-hover:text-white">{c.title}</div>
+                    <p className="text-slate-700 text-sm leading-relaxed transition-colors group-hover:text-white/90">{c.body}</p>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            {/* Purpose */}
+            {/* Approach (replaces Purpose) */}
             <div id="about-purpose" className="scroll-mt-24">
-              <h3 className="text-2xl font-semibold mb-4">Our Purpose</h3>
-              <p className="text-slate-700 max-w-3xl">Build resilient, ethical software that empowers people and businesses to do their best work.</p>
+              <h3 className="text-3xl md:text-4xl font-semibold mb-2 text-slate-900">Our Approach</h3>
+              <p className="text-slate-700 max-w-3xl mb-8">
+                Our approach is built on three pillars
+              </p>
+
+              <div className="grid md:grid-cols-3 gap-7">
+                {/* Innovation at Core */}
+                <div className="group flip-card h-[260px]">
+                  <div className="flip-inner rounded-xl shadow-md">
+                    <div className="flip-face flip-front rounded-xl bg-[#0f1422] text-white p-7">
+                      <div className="flex items-start gap-4">
+                        {/* Icon */}
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" className="shrink-0 text-cyan-400">
+                          <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                        </svg>
+                        <div>
+                          <div className="text-2xl font-semibold mb-2">Innovation at Core</div>
+                          <p className="text-white/80 text-sm leading-relaxed">Constantly evolving with emerging technologies like AI, cloud computing, and automation.</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flip-face flip-back rounded-xl text-white p-7 bg-gradient-to-br from-fuchsia-600 via-indigo-600 to-cyan-500">
+                      <div className="flex items-start gap-4">
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" className="shrink-0 text-white">
+                          <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                        </svg>
+                        <div>
+                          <div className="text-2xl font-semibold mb-2">Innovation at Core</div>
+                          <p className="text-white/90 text-sm leading-relaxed">Constantly evolving with emerging technologies like AI, cloud computing, and automation.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Client-Centric Focus */}
+                <div className="group flip-card h-[260px]">
+                  <div className="flip-inner rounded-xl shadow-md">
+                    <div className="flip-face flip-front rounded-xl bg-[#0f1422] text-white p-7">
+                      <div className="flex items-start gap-4">
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" className="shrink-0 text-indigo-400">
+                          <path d="M12 12a5 5 0 100-10 5 5 0 000 10z" stroke="currentColor" strokeWidth="1.5"/>
+                          <path d="M3 21a9 9 0 0118 0" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                        </svg>
+                        <div>
+                          <div className="text-2xl font-semibold mb-2">Client‑Centric Focus</div>
+                          <p className="text-white/80 text-sm leading-relaxed">Every solution is tailored to solve real challenges, ensuring measurable business outcomes.</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flip-face flip-back rounded-xl text-white p-7 bg-gradient-to-br from-indigo-600 via-sky-600 to-emerald-500">
+                      <div className="flex items-start gap-4">
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" className="shrink-0 text-white">
+                          <path d="M12 12a5 5 0 100-10 5 5 0 000 10z" stroke="currentColor" strokeWidth="1.5"/>
+                          <path d="M3 21a9 9 0 0118 0" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                        </svg>
+                        <div>
+                          <div className="text-2xl font-semibold mb-2">Client‑Centric Focus</div>
+                          <p className="text-white/90 text-sm leading-relaxed">Every solution is tailored to solve real challenges, ensuring measurable business outcomes.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Trusted Partnerships */}
+                <div className="group flip-card h-[260px]">
+                  <div className="flip-inner rounded-xl shadow-md">
+                    <div className="flip-face flip-front rounded-xl bg-[#0f1422] text-white p-7">
+                      <div className="flex items-start gap-4">
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" className="shrink-0 text-fuchsia-400">
+                          <path d="M7 11l5 5L22 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                          <rect x="2" y="12" width="7" height="7" rx="2" stroke="currentColor" strokeWidth="1.4"/>
+                        </svg>
+                        <div>
+                          <div className="text-2xl font-semibold mb-2">Trusted Partnerships</div>
+                          <p className="text-white/80 text-sm leading-relaxed">Beyond services, we build long‑term collaborations based on trust, transparency, and shared success.</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flip-face flip-back rounded-xl text-white p-7 bg-gradient-to-br from-violet-600 via-purple-600 to-pink-500">
+                      <div className="flex items-start gap-4">
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" className="shrink-0 text-white">
+                          <path d="M7 11l5 5L22 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                          <rect x="2" y="12" width="7" height="7" rx="2" stroke="currentColor" strokeWidth="1.4"/>
+                        </svg>
+                        <div>
+                          <div className="text-2xl font-semibold mb-2">Trusted Partnerships</div>
+                          <p className="text-white/90 text-sm leading-relaxed">Beyond services, we build long‑term collaborations based on trust, transparency, and shared success.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Journey */}
