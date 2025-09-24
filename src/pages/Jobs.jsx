@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { TrashIcon } from "@heroicons/react/24/solid";
+import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 
 export default function Jobs() {
   const [jobs, setJobs] = useState([
@@ -105,11 +106,10 @@ Requirements:
   const [openJobId, setOpenJobId] = useState(null);
   const [openCandidatesJobId, setOpenCandidatesJobId] = useState(null);
   const [showForm, setShowForm] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const [formData, setFormData] = useState({
-    name: "",
     title: "",
     dept: "",
     descri: "",
@@ -132,12 +132,12 @@ Requirements:
 
   const addNewJob = (e) => {
     e.preventDefault();
-    if (!formData.name || !formData.title || !formData.dept || !formData.descri) {
+    if (!formData.title || !formData.dept || !formData.descri) {
       alert("Please fill all fields!");
       return;
     }
     const newJob = {
-      id: (jobs.length + 1).toString(),
+      id: Date.now().toString(),
       title: formData.title,
       dept: formData.dept,
       status: "open",
@@ -145,7 +145,7 @@ Requirements:
       candidates: [],
     };
     setJobs([...jobs, newJob]);
-    setFormData({ name: "", title: "", dept: "", descri: "" });
+    setFormData({ title: "", dept: "", descri: "" });
     setShowForm(false);
   };
 
@@ -158,63 +158,53 @@ Requirements:
     setTimeout(() => setSuccessMsg(""), 2000);
   };
 
-  const buttonClass =
-    "px-3 py-1.5 rounded bg-sky-600 text-white text-sm hover:bg-sky-700";
+  const buttonClass = "px-3 py-1.5 rounded bg-sky-600 text-white text-sm hover:bg-sky-700";
 
-  const filteredJobs = jobs.filter(
-    (job) =>
-      job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      job.dept.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredJobs = jobs.filter((job) => {
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) return true;
+    return (
+      job.title.toLowerCase().includes(query) ||
+      job.dept.toLowerCase().includes(query)
+    );
+  });
 
   return (
     <div className="bg-white p-6 rounded-xl shadow">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold">Job Posts</h2>
-        <button onClick={() => setShowForm(true)} className={buttonClass}>
-          + New Job
-        </button>
+        <div className="flex gap-2">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search jobs..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 pr-3 py-1.5 border rounded text-black bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+            />
+            <MagnifyingGlassIcon className="w-5 h-5 absolute left-2 top-1.5 text-gray-400 pointer-events-none" />
+          </div>
+
+          <button onClick={() => setShowForm(true)} className={buttonClass}>
+            + New Job
+          </button>
+        </div>
       </div>
 
-      {successMsg && (
-        <div className="mb-2 text-green-600 font-medium">{successMsg}</div>
-      )}
+      {successMsg && <div className="mb-2 text-green-600 font-medium">{successMsg}</div>}
 
-      {/* Search bar */}
-      <input
-        type="text"
-        placeholder="Search by title or department..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="w-full mb-4 p-2 border rounded"
-      />
-
-      {/* Job List */}
       <ul className="space-y-2">
         {filteredJobs.length > 0 ? (
           filteredJobs.map((job) => (
             <li key={job.id} className="border rounded p-3">
               <div className="flex items-center justify-between">
                 <div>
-                  {/* FIXED TITLE + COLOR */}
                   <div className="font-semibold text-gray-900">{job.title}</div>
-                  <div className="text-sm text-gray-700">
-                    {job.dept} • {job.status}
-                  </div>
+                  <div className="text-sm text-gray-700">{job.dept} • {job.status}</div>
                 </div>
                 <div className="flex gap-2">
-                  <button
-                    onClick={() => toggleView(job.id)}
-                    className={buttonClass}
-                  >
-                    View
-                  </button>
-                  <button
-                    onClick={() => toggleCandidates(job.id)}
-                    className={buttonClass}
-                  >
-                    Candidates
-                  </button>
+                  <button onClick={() => toggleView(job.id)} className={buttonClass}>View</button>
+                  <button onClick={() => toggleCandidates(job.id)} className={buttonClass}>Candidates</button>
                   <button
                     onClick={() => deleteJob(job.id)}
                     className="px-3 py-1.5 rounded bg-red-600 text-white text-sm hover:bg-red-700 flex items-center gap-1"
@@ -226,9 +216,7 @@ Requirements:
               </div>
 
               {openJobId === job.id && (
-                <div className="mt-2 p-2 bg-gray-50 rounded border whitespace-pre-line text-gray-800">
-                  {job.descri}
-                </div>
+                <div className="mt-2 p-2 bg-gray-50 rounded border whitespace-pre-line text-gray-800">{job.descri}</div>
               )}
 
               {openCandidatesJobId === job.id && (
@@ -236,16 +224,12 @@ Requirements:
                   {job.candidates.length > 0 ? (
                     job.candidates.map((c) => (
                       <li key={c.id} className="text-sm border-b pb-1">
-                        <div>
-                          <strong>{c.name}</strong> ({c.email})
-                        </div>
+                        <div><strong>{c.name}</strong> ({c.email})</div>
                         <div>Status: {c.status}</div>
                       </li>
                     ))
                   ) : (
-                    <li className="text-sm text-gray-500">
-                      No candidates applied yet.
-                    </li>
+                    <li className="text-sm text-gray-500">No candidates applied yet.</li>
                   )}
                 </ul>
               )}
@@ -256,27 +240,18 @@ Requirements:
         )}
       </ul>
 
-      {/* Add Job Form Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">
             <h3 className="text-lg font-semibold mb-4">Add New Job</h3>
             <form onSubmit={addNewJob} className="space-y-3">
-              <input
-                type="text"
-                name="name"
-                placeholder="Your Name"
-                value={formData.name}
-                onChange={handleFormChange}
-                className="w-full p-2 border rounded"
-              />
               <input
                 type="text"
                 name="title"
                 placeholder="Job Title"
                 value={formData.title}
                 onChange={handleFormChange}
-                className="w-full p-2 border rounded"
+                className="w-full p-2 border rounded text-black focus:outline-none focus:ring-2 focus:ring-sky-500 bg-white"
               />
               <input
                 type="text"
@@ -284,27 +259,18 @@ Requirements:
                 placeholder="Department"
                 value={formData.dept}
                 onChange={handleFormChange}
-                className="w-full p-2 border rounded"
+                className="w-full p-2 border rounded text-black focus:outline-none focus:ring-2 focus:ring-sky-500 bg-white"
               />
               <textarea
                 name="descri"
                 placeholder="Description"
                 value={formData.descri}
                 onChange={handleFormChange}
-                className="w-full p-2 border rounded"
-              ></textarea>
-
+                className="w-full p-2 border rounded text-black focus:outline-none focus:ring-2 focus:ring-sky-500 bg-white"
+              />
               <div className="flex justify-end gap-2 mt-3">
-                <button
-                  type="button"
-                  onClick={() => setShowForm(false)}
-                  className="px-3 py-1.5 rounded bg-gray-400 text-white"
-                >
-                  Cancel
-                </button>
-                <button type="submit" className={buttonClass}>
-                  Save
-                </button>
+                <button type="button" onClick={() => setShowForm(false)} className="px-3 py-1.5 rounded bg-gray-400 text-white">Cancel</button>
+                <button type="submit" className={buttonClass}>Save</button>
               </div>
             </form>
           </div>
