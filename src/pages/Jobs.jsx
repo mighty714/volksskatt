@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { TrashIcon } from "@heroicons/react/24/solid"; // Make sure to install @heroicons/react
+import { TrashIcon } from "@heroicons/react/24/solid";
 
 export default function Jobs() {
   const [jobs, setJobs] = useState([
@@ -104,6 +104,16 @@ Requirements:
 
   const [openJobId, setOpenJobId] = useState(null);
   const [openCandidatesJobId, setOpenCandidatesJobId] = useState(null);
+  const [showForm, setShowForm] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
+
+  const [formData, setFormData] = useState({
+    name: "",
+    title: "",
+    dept: "",
+    descri: "",
+  });
 
   const toggleView = (jobId) => {
     setOpenJobId(openJobId === jobId ? null : jobId);
@@ -115,103 +125,191 @@ Requirements:
     setOpenJobId(null);
   };
 
-  const addNewJob = () => {
-    const title = prompt("Enter job title:");
-    const dept = prompt("Enter department:");
-    const descri = prompt("Enter description:");
+  const handleFormChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
 
-    if (!title?.trim() || !dept?.trim() || !descri?.trim()) {
-      alert("Please provide all job details!");
+  const addNewJob = (e) => {
+    e.preventDefault();
+    if (!formData.name || !formData.title || !formData.dept || !formData.descri) {
+      alert("Please fill all fields!");
       return;
     }
-
     const newJob = {
       id: (jobs.length + 1).toString(),
-      title,
-      dept,
-      status: 'open',
-      descri,
+      title: formData.title,
+      dept: formData.dept,
+      status: "open",
+      descri: formData.descri,
       candidates: [],
     };
     setJobs([...jobs, newJob]);
+    setFormData({ name: "", title: "", dept: "", descri: "" });
+    setShowForm(false);
   };
 
   const deleteJob = (jobId) => {
-    if (window.confirm("Are you sure you want to delete this job?")) {
-      setJobs(jobs.filter(job => job.id !== jobId));
-      if (openJobId === jobId) setOpenJobId(null);
-      if (openCandidatesJobId === jobId) setOpenCandidatesJobId(null);
-    }
+    setJobs(jobs.filter((job) => job.id !== jobId));
+    if (openJobId === jobId) setOpenJobId(null);
+    if (openCandidatesJobId === jobId) setOpenCandidatesJobId(null);
+
+    setSuccessMsg("✅ Job deleted successfully!");
+    setTimeout(() => setSuccessMsg(""), 2000);
   };
 
-  const buttonClass = "px-3 py-1.5 rounded bg-sky-600 text-white flex items-center gap-1 text-sm";
+  const buttonClass =
+    "px-3 py-1.5 rounded bg-sky-600 text-white text-sm hover:bg-sky-700";
+
+  const filteredJobs = jobs.filter(
+    (job) =>
+      job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      job.dept.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
-    <div className="bg-bluen p-6 rounded-xl shadow">
+    <div className="bg-white p-6 rounded-xl shadow">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold">Job Posts</h2>
-        <button 
-          onClick={addNewJob}
-          className={buttonClass + " gap-1"}
-        >
-          New Job
+        <button onClick={() => setShowForm(true)} className={buttonClass}>
+          + New Job
         </button>
       </div>
 
+      {successMsg && (
+        <div className="mb-2 text-green-600 font-medium">{successMsg}</div>
+      )}
+
+      {/* Search bar */}
+      <input
+        type="text"
+        placeholder="Search by title or department..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="w-full mb-4 p-2 border rounded"
+      />
+
+      {/* Job List */}
       <ul className="space-y-2">
-        {jobs.map(job => (
-          <li key={job.id} className="border rounded p-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="font-medium">{job.title}</div>
-                <div className="text-sm text-gray-600">{job.dept} • {job.status}</div>
+        {filteredJobs.length > 0 ? (
+          filteredJobs.map((job) => (
+            <li key={job.id} className="border rounded p-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  {/* FIXED TITLE + COLOR */}
+                  <div className="font-semibold text-gray-900">{job.title}</div>
+                  <div className="text-sm text-gray-700">
+                    {job.dept} • {job.status}
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => toggleView(job.id)}
+                    className={buttonClass}
+                  >
+                    View
+                  </button>
+                  <button
+                    onClick={() => toggleCandidates(job.id)}
+                    className={buttonClass}
+                  >
+                    Candidates
+                  </button>
+                  <button
+                    onClick={() => deleteJob(job.id)}
+                    className="px-3 py-1.5 rounded bg-red-600 text-white text-sm hover:bg-red-700 flex items-center gap-1"
+                  >
+                    <TrashIcon className="w-4 h-4" />
+                    Delete
+                  </button>
+                </div>
               </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => toggleView(job.id)}
-                  className={buttonClass.replace("flex items-center gap-1", "")} // remove icon gap for plain buttons
-                > 
-                  View
-                </button>
-                <button
-                  onClick={() => toggleCandidates(job.id)}
-                  className={buttonClass.replace("flex items-center gap-1", "")}
-                >
-                  Candidates
-                </button>
-                <button
-                  onClick={() => deleteJob(job.id)}
-                  className={buttonClass}
-                >
-                  <TrashIcon className="w-4 h-4" />
-                  Delete
-                </button>
-              </div>
-            </div>
 
-            {openJobId === job.id && (
-              <div className="mt-2 p-2 bg-gray-50 rounded border whitespace-pre-line text-gray-800">
-                {job.descri}
-              </div>
-            )}
+              {openJobId === job.id && (
+                <div className="mt-2 p-2 bg-gray-50 rounded border whitespace-pre-line text-gray-800">
+                  {job.descri}
+                </div>
+              )}
 
-            {openCandidatesJobId === job.id && (
-              <ul className="mt-2 p-2 bg-gray-50 rounded border space-y-1 text-gray-800">
-                {job.candidates.length > 0 ? (
-                  job.candidates.map(c => (
-                    <li key={c.id} className="text-sm border-b pb-1">
-                      <div><strong>{c.name}</strong> ({c.email})</div>
-                      <div>Status: {c.status}</div>
+              {openCandidatesJobId === job.id && (
+                <ul className="mt-2 p-2 bg-gray-50 rounded border space-y-1 text-gray-800">
+                  {job.candidates.length > 0 ? (
+                    job.candidates.map((c) => (
+                      <li key={c.id} className="text-sm border-b pb-1">
+                        <div>
+                          <strong>{c.name}</strong> ({c.email})
+                        </div>
+                        <div>Status: {c.status}</div>
+                      </li>
+                    ))
+                  ) : (
+                    <li className="text-sm text-gray-500">
+                      No candidates applied yet.
                     </li>
-                  ))
-                ) : (
-                  <li className="text-sm text-gray-500">No candidates applied yet.</li>
-                )}
-              </ul>
-            )}
-          </li>
-        ))}
+                  )}
+                </ul>
+              )}
+            </li>
+          ))
+        ) : (
+          <p className="text-gray-500">No jobs found.</p>
+        )}
       </ul>
+
+      {/* Add Job Form Modal */}
+      {showForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+            <h3 className="text-lg font-semibold mb-4">Add New Job</h3>
+            <form onSubmit={addNewJob} className="space-y-3">
+              <input
+                type="text"
+                name="name"
+                placeholder="Your Name"
+                value={formData.name}
+                onChange={handleFormChange}
+                className="w-full p-2 border rounded"
+              />
+              <input
+                type="text"
+                name="title"
+                placeholder="Job Title"
+                value={formData.title}
+                onChange={handleFormChange}
+                className="w-full p-2 border rounded"
+              />
+              <input
+                type="text"
+                name="dept"
+                placeholder="Department"
+                value={formData.dept}
+                onChange={handleFormChange}
+                className="w-full p-2 border rounded"
+              />
+              <textarea
+                name="descri"
+                placeholder="Description"
+                value={formData.descri}
+                onChange={handleFormChange}
+                className="w-full p-2 border rounded"
+              ></textarea>
+
+              <div className="flex justify-end gap-2 mt-3">
+                <button
+                  type="button"
+                  onClick={() => setShowForm(false)}
+                  className="px-3 py-1.5 rounded bg-gray-400 text-white"
+                >
+                  Cancel
+                </button>
+                <button type="submit" className={buttonClass}>
+                  Save
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
