@@ -1,27 +1,38 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { logout, getUser } from '../services/auth'
+import { useState } from 'react'
 
-const NavItem = ({ to, label, icon }) => (
-  <NavLink
-    to={to}
-    className={({ isActive }) =>
-      `flex items-center gap-3 px-4 py-2 rounded-xl text-sm font-medium transition border ${
-        isActive
-          ? 'bg-white text-slate-900 border-white/60 shadow'
-          : 'text-white/85 hover:bg-white/10 border-white/10'
-      }`
-    }
-  >
-    <span className="text-lg">
-      {icon}
-    </span>
-    {label}
-  </NavLink>
+const NavItem = ({ to, label, icon, collapsed }) => (
+  <div className="relative group">
+    <NavLink
+      to={to}
+      className={({ isActive }) =>
+        `flex items-center ${collapsed ? 'justify-center' : 'gap-3'} px-4 py-2 rounded-xl text-sm font-medium transition border ${
+          isActive
+            ? 'bg-white text-slate-900 border-white/60 shadow'
+            : 'text-white/85 hover:bg-white/10 border-white/10'
+        }`
+      }
+    >
+      <span className="text-lg transition-transform duration-200 ease-out group-hover:scale-150">{icon}</span>
+      {!collapsed && <span>{label}</span>}
+    </NavLink>
+    {collapsed && (
+      <div className="pointer-events-none absolute left-full top-1/2 -translate-y-1/2 ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="px-3 py-1 rounded-lg bg-white text-slate-900 text-xs shadow-lg border border-slate-200 whitespace-nowrap">
+          {label}
+        </div>
+      </div>
+    )}
+  </div>
 )
 
 export default function Layout() {
   const navigate = useNavigate()
   const user = getUser()
+  // pinned: user explicitly expands/collapses; no hover-driven expand
+  const [pinned, setPinned] = useState(false)
+  const expanded = pinned
 
   const onLogout = () => {
     logout()
@@ -29,7 +40,10 @@ export default function Layout() {
   }
 
   return (
-    <div className="min-h-screen relative grid grid-cols-[260px,1fr] text-white">
+    <div
+      data-sidebar={expanded ? 'expanded' : 'collapsed'}
+      className={`min-h-screen relative grid ${expanded ? 'grid-cols-[260px,1fr]' : 'grid-cols-[80px,1fr]'} text-white`}
+    >
       {/* Dashboard background: decent colors (no image) */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-indigo-900 to-sky-800" />
@@ -37,30 +51,51 @@ export default function Layout() {
         <div className="absolute bottom-10 -right-16 h-72 w-72 rounded-full bg-amber-400/20 blur-3xl" />
       </div>
       {/* Sidebar */}
-      <aside className="bg-white/10 backdrop-blur-xl border-r border-white/10 p-4 flex flex-col text-white">
-        <div className="flex items-center gap-2 mb-6">
+      <aside
+        className="bg-white/10 backdrop-blur-xl border-r border-white/10 p-4 flex flex-col text-white"
+      >
+        <div className={`flex items-center ${expanded ? 'gap-2 justify-start' : 'justify-center'} mb-6`}>
           <img src="/logo.png" alt="volksskatt logo" className="w-8 h-8 object-contain" />
-          <div className="font-semibold">volksskatt</div>
+          {expanded && <div className="font-semibold">volksskatt</div>}
         </div>
         <nav className="space-y-1">
-          <NavItem to="/app/dashboard" label="Dashboard" icon="🏠" />
-          <NavItem to="/app/clock" label="Clock" icon="⏱️" />
-          <NavItem to="/app/attendance" label="Attendance" icon="📋" />
-          <NavItem to="/app/jobs" label="Jobs" icon="💼" />
-          <NavItem to="/app/interviews" label="Interviews" icon="🗓️" />
-          <NavItem to="/app/documents" label="Documents" icon="📄" />
-          <NavItem to="/app/offers" label="Offers" icon="🎯" />
+          <NavItem to="/app/dashboard" label="Dashboard" icon="🏠" collapsed={!expanded} />
+          <NavItem to="/app/clock" label="Clock" icon="⏱️" collapsed={!expanded} />
+          <NavItem to="/app/attendance" label="Attendance" icon="📋" collapsed={!expanded} />
+          <NavItem to="/app/jobs" label="Jobs" icon="💼" collapsed={!expanded} />
+          <NavItem to="/app/interviews" label="Interviews" icon="🗓️" collapsed={!expanded} />
+          <NavItem to="/app/documents" label="Documents" icon="📄" collapsed={!expanded} />
+          <NavItem to="/app/offers" label="Offers" icon="🎯" collapsed={!expanded} />
           {/* Plain anchor ensures navigation out of /app to the public home contact section */}
-          <a
-            href="/#contact"
-            className="flex items-center gap-3 px-4 py-2 rounded-xl text-sm font-medium transition border text-white/85 hover:bg-white/10 border-white/10"
-          >
-            <span className="text-lg">📞</span>
-            Contact Us
-          </a>
+          <div className="relative group">
+            <a
+              href="/#contact"
+              className={`flex items-center ${expanded ? 'gap-3' : 'justify-center'} px-4 py-2 rounded-xl text-sm font-medium transition border text-white/85 hover:bg-white/10 border-white/10`}
+            >
+              <span className="text-lg transition-transform duration-200 ease-out group-hover:scale-150">📞</span>
+              {expanded && <span>Contact Us</span>}
+            </a>
+            {!expanded && (
+              <div className="pointer-events-none absolute left-full top-1/2 -translate-y-1/2 ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="px-3 py-1 rounded-lg bg-white text-slate-900 text-xs shadow-lg border border-slate-200 whitespace-nowrap">
+                  Contact Us
+                </div>
+              </div>
+            )}
+          </div>
         </nav>
-        <div className="mt-auto pt-6 text-xs text-white/70">
-          &copy; {new Date().getFullYear()} Demo
+        <div className={`mt-auto pt-6 text-xs text-white/70 ${expanded ? '' : 'text-center'}`}>
+          
+        </div>
+        <div className={`${expanded ? '' : 'text-center'} pt-3`}>
+          <button
+            onClick={() => setPinned((v) => !v)}
+            className="mx-auto rounded-full bg-white/10 border border-white/10 w-8 h-8 grid place-items-center text-sm hover:bg-white/20 transition"
+            aria-label={expanded ? 'Collapse sidebar' : 'Expand sidebar'}
+            title={expanded ? 'Collapse' : 'Expand'}
+          >
+            <span className="select-none">{expanded ? '◀' : '▶'}</span>
+          </button>
         </div>
       </aside>
 

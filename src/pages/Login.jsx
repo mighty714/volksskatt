@@ -6,8 +6,10 @@ export default function Login() {
   const [email, setEmail] = useState('Admin')
   const [password, setPassword] = useState('admin123')
   const [error, setError] = useState('')
-  const [wordmarkVisible, setWordmarkVisible] = useState(false)
-  const [formVisible, setFormVisible] = useState(false)
+  const [mounted, setMounted] = useState(false)
+  const [showForgot, setShowForgot] = useState(false)
+  const [forgotEmail, setForgotEmail] = useState('')
+  const [forgotStatus, setForgotStatus] = useState({ loading: false, success: false, message: '' })
   const navigate = useNavigate()
 
   const submit = async (e) => {
@@ -20,117 +22,147 @@ export default function Login() {
     }
   }
 
-  // Intro animation sequence: show wordmark, then reveal form
+  // Mount flag for subtle entrance animation
   useEffect(() => {
-    const t0 = setTimeout(() => setWordmarkVisible(true), 250)
-    const t2 = setTimeout(() => setFormVisible(true), 900)
-    return () => {
-      clearTimeout(t0)
-      clearTimeout(t2)
-    }
+    const t = setTimeout(() => setMounted(true), 50)
+    return () => clearTimeout(t)
   }, [])
+
+  const submitForgot = async (e) => {
+    e.preventDefault()
+    if (!forgotEmail) return
+    setForgotStatus({ loading: true, success: false, message: '' })
+    // Mock async API call for password reset email
+    await new Promise((r) => setTimeout(r, 1000))
+    setForgotStatus({ loading: false, success: true, message: 'If an account exists for this email, a reset link has been sent.' })
+  }
+
+  // Left welcome area (centered content)
+  const renderWelcomeCard = () => (
+    <div className="w-full flex flex-col items-center pl-0">
+      <div className="text-center">
+        <div className="text-white text-4xl md:text-5xl font-semibold tracking-tight" style={{fontFamily:'Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans, sans-serif'}}>Volksskatt</div>
+        <div className="text-white/90 text-2xl md:text-3xl font-medium -mt-1 tracking-tight" style={{fontFamily:'Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans, sans-serif'}}>Infotech</div>
+      </div>
+      <div className="mt-8">
+        <div className="w-44 h-44 md:w-52 md:h-52 rounded-full bg-white/10 border-2 border-white/40 grid place-items-center">
+          <img src="/logo.png" alt="logo" className="w-28 h-28 md:w-32 md:h-32 object-contain" />
+        </div>
+      </div>
+    </div>
+  )
 
   return (
     <div className="min-h-screen relative overflow-hidden text-white">
-      {/* Background: decent color gradient (no image) */}
-      <div className="absolute inset-0 -z-10">
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-indigo-800 to-sky-700" />
-        <div className="absolute -top-24 -left-12 h-64 w-64 rounded-full bg-emerald-400/20 blur-3xl" />
-        <div className="absolute bottom-10 -right-12 h-64 w-64 rounded-full bg-amber-400/20 blur-3xl" />
-      </div>
-
-      {/* Header/Nav */}
-      <header className="sticky top-0 z-20 backdrop-blur-xl bg-white/10 border-b border-white/10">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <button onClick={() => navigate('/')} className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded bg-white/80 grid place-items-center text-slate-800 font-bold">V</div>
-            <span className="font-semibold text-white">volksskatt</span>
-          </button>
-          <nav className="hidden md:flex items-center gap-6 text-sm text-white/80">
-            <button onClick={() => navigate('/')} className="hover:text-white">Home</button>
-            <button onClick={() => navigate('/login')} className="text-white">Login</button>
-          </nav>
-        </div>
+      {/* Minimal navbar with Home icon at right corner */}
+      <header className="absolute top-0 right-0 z-20 p-4">
+        <button onClick={() => navigate('/')} aria-label="Home" title="Home" className="w-9 h-9 grid place-items-center rounded-full bg-white/10 hover:bg-white/20 text-white">
+          {/* Home icon */}
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5">
+            <path d="M3 11l9-8 9 8"/>
+            <path d="M5 10v10h14V10"/>
+          </svg>
+        </button>
       </header>
+      {/* Animated gradient background */}
+      <div className="absolute inset-0 -z-10 animated-gradient" />
 
-      {/* Right-side badge removed as requested */}
-
-      <div className="relative z-10 max-w-6xl mx-auto px-4 py-10">
-        {/* Floating wordmark card */}
-        <div className={`mx-auto w-full max-w-2xl bg-white/10 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_20px_60px_-20px_rgba(0,0,0,0.35)] p-5 transition-all duration-700 ${
-          wordmarkVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-6'
-        }`}>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-white/80 grid place-items-center text-slate-800 font-bold">V</div>
-            <div className="text-2xl font-semibold text-white">
-              <span className="text-emerald-300">volk</span>
-              <span className="text-amber-300">sskatt</span>
+      {/* Two-column layout: left welcome card, right login form */}
+      <div className={`min-h-screen grid place-items-center px-4 transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'}`}>
+        <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+          <div className="flex items-center justify-center md:justify-start md:-translate-x-4">
+            {renderWelcomeCard()}
+          </div>
+          {/* Transparent login card */}
+          <form onSubmit={submit} className="bg-transparent rounded-3xl p-6 md:p-8 shadow-2xl border border-transparent w-full max-w-md min-h-[520px] flex flex-col">
+            <div className="mb-6 text-center">
+              <div className="text-white text-3xl md:text-4xl font-extrabold tracking-tight drop-shadow">Member Login</div>
+              <div className="mt-3 flex justify-center">
+                <span className="w-10 h-10 rounded-full bg-white/15 backdrop-blur-sm grid place-items-center text-white">👤</span>
+              </div>
             </div>
-          </div>
-        </div>
 
-        {/* Docked logo removed as requested */}
+            {error && (
+              <div className="flex items-center gap-2 text-sm text-rose-700 bg-rose-50 border border-rose-200 rounded-xl px-3 py-2 mb-4">
+                <span>❗</span>
+                <span>{error}</span>
+              </div>
+            )}
 
-        {/* Form card */}
-        <form
-          onSubmit={submit}
-          className={`mx-auto w-full max-w-xl bg-white/10 backdrop-blur-xl border border-white/10 mt-6 rounded-3xl shadow-xl p-6 md:p-8 transform transition-all duration-700 ${
-            formVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-3 pointer-events-none'
-          }`}
-        >
-          <h1 className="text-center text-2xl font-semibold text-white mb-4">Login</h1>
-
-          {/* Error banner */}
-          {error && (
-            <div className="flex items-center gap-2 text-sm text-rose-700 bg-rose-50 border border-rose-200 rounded-xl px-3 py-2 mb-4">
-              <span>❗</span>
-              <span>{error}</span>
+            <label className="block text-xs font-semibold tracking-wide text-orange-600 mb-1">EMAIL</label>
+            <div className="relative mb-4">
+              <input
+                className="w-full pl-9 pr-3 py-3 bg-transparent border-0 border-b-2 border-orange-400 placeholder-orange-400 focus:outline-none focus:border-orange-500"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                type="text"
+                placeholder="name@addressemail.com"
+                required
+              />
+              <span className="absolute left-1 top-1/2 -translate-y-1/2 text-orange-500">👤</span>
             </div>
-          )}
 
-          {/* Hint box */}
-          <div className="text-white bg-white/5 rounded-2xl px-5 py-4 mb-5 text-sm border border-white/10">
-            <div>Username : <span className="font-medium">Admin</span></div>
-            <div>Password : <span className="font-medium">admin123</span></div>
-          </div>
+            <label className="block text-xs font-semibold tracking-wide text-orange-600 mb-1">PASSWORD</label>
+            <div className="relative mb-4">
+              <input
+                className="w-full pl-9 pr-3 py-3 bg-transparent border-0 border-b-2 border-orange-400 placeholder-orange-400 focus:outline-none focus:border-orange-500"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                type="password"
+                placeholder="••••••••••"
+                required
+              />
+              <span className="absolute left-1 top-1/2 -translate-y-1/2 text-orange-500">🔒</span>
+            </div>
 
-          <label className="block text-sm mb-1 text-white/90">Username</label>
-          <div className="relative mb-3">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/60">👤</span>
-            <input
-              className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/30"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              type="text"
-              required
-            />
-          </div>
+            <div className="flex items-center justify-between text-sm text-slate-600 mb-6">
+              <label className="inline-flex items-center gap-2 select-none">
+                <input type="checkbox" className="accent-orange-500" />
+                <span>Remember</span>
+              </label>
+              <button type="button" onClick={() => setShowForgot(true)} className="text-orange-600 hover:underline">Forgot password?</button>
+            </div>
 
-          <label className="block text-sm mb-1 text-white/90">Password</label>
-          <div className="relative mb-5">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/60">🔒</span>
-            <input
-              className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/30"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              type="password"
-              required
-            />
-          </div>
+            <div className="mt-auto flex justify-center pt-4">
+              <button className="w-40 py-3 rounded-xl bg-[#f57c00] hover:bg-[#e96f00] text-white text-base font-semibold">LOG IN</button>
+            </div>
 
-          <button className="w-full py-2.5 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 text-slate-900 font-medium shadow hover:brightness-105">
-            Login
-          </button>
-
-          <div className="text-center mt-4 text-sm text-white/80">
-            <button type="button" className="hover:underline">Forgot your password?</button>
-          </div>
-        </form>
-
-        <div className="text-center text-xs text-slate-500 mt-6">
-          OrangeHRM OS 5.7 • © 2005 - {new Date().getFullYear()} OrangeHRM, Inc. All rights reserved.
+            {/* Sign up removed per request */}
+          </form>
         </div>
       </div>
+      {/* Forgot Password Modal */}
+      {showForgot && (
+        <div className="fixed inset-0 z-30 grid place-items-center bg-black/50 px-4">
+          <div className="w-full max-w-md rounded-2xl bg-white/90 backdrop-blur-md shadow-2xl p-6">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-slate-800 text-xl font-semibold">Reset your password</h2>
+              <button onClick={() => { setShowForgot(false); setForgotStatus({ loading:false, success:false, message:'' }); }} className="text-slate-600 hover:text-slate-900">✕</button>
+            </div>
+            <p className="text-sm text-slate-600 mb-4">Enter the email address associated with your account and well send you a link to reset your password.</p>
+            <form onSubmit={submitForgot}>
+              <label className="block text-xs font-semibold tracking-wide text-orange-600 mb-1">EMAIL</label>
+              <input
+                className="w-full px-3 py-2 rounded-lg border border-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white/80 text-slate-900 placeholder-slate-500"
+                type="email"
+                placeholder="you@example.com"
+                value={forgotEmail}
+                onChange={(e) => setForgotEmail(e.target.value)}
+                required
+              />
+              {forgotStatus.message && (
+                <div className="mt-3 text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2">{forgotStatus.message}</div>
+              )}
+              <div className="mt-4 flex gap-3">
+                <button type="button" onClick={() => { setShowForgot(false); setForgotStatus({ loading:false, success:false, message:'' }); }} className="px-4 py-2 rounded-lg border border-slate-300 text-slate-700 bg-white/80 hover:bg-white">Cancel</button>
+                <button type="submit" disabled={forgotStatus.loading} className="px-4 py-2 rounded-lg bg-[#f57c00] text-white hover:bg-[#e96f00] disabled:opacity-60 disabled:cursor-not-allowed">
+                  {forgotStatus.loading ? 'Sending…' : 'Send reset link'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
