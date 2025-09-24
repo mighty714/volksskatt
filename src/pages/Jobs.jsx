@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { TrashIcon } from "@heroicons/react/24/solid"; // Make sure to install @heroicons/react
 
 export default function Jobs() {
   const [jobs, setJobs] = useState([
@@ -108,6 +109,7 @@ Requirements:
     setOpenJobId(openJobId === jobId ? null : jobId);
     setOpenCandidatesJobId(null);
   };
+
   const toggleCandidates = (jobId) => {
     setOpenCandidatesJobId(openCandidatesJobId === jobId ? null : jobId);
     setOpenJobId(null);
@@ -134,13 +136,23 @@ Requirements:
     setJobs([...jobs, newJob]);
   };
 
+  const deleteJob = (jobId) => {
+    if (window.confirm("Are you sure you want to delete this job?")) {
+      setJobs(jobs.filter(job => job.id !== jobId));
+      if (openJobId === jobId) setOpenJobId(null);
+      if (openCandidatesJobId === jobId) setOpenCandidatesJobId(null);
+    }
+  };
+
+  const buttonClass = "px-3 py-1.5 rounded bg-sky-600 text-white flex items-center gap-1 text-sm";
+
   return (
-    <div className="bg-white p-6 rounded-xl shadow">
+    <div className="bg-bluen p-6 rounded-xl shadow">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold">Job Posts</h2>
         <button 
           onClick={addNewJob}
-          className="px-3 py-2 rounded bg-sky-600 text-white text-sm"
+          className={buttonClass + " gap-1"}
         >
           New Job
         </button>
@@ -157,27 +169,34 @@ Requirements:
               <div className="flex gap-2">
                 <button
                   onClick={() => toggleView(job.id)}
-                  className="px-3 py-1.5 rounded border text-sm"
-                >
+                  className={buttonClass.replace("flex items-center gap-1", "")} // remove icon gap for plain buttons
+                > 
                   View
                 </button>
                 <button
                   onClick={() => toggleCandidates(job.id)}
-                  className="px-3 py-1.5 rounded border text-sm"
+                  className={buttonClass.replace("flex items-center gap-1", "")}
                 >
                   Candidates
+                </button>
+                <button
+                  onClick={() => deleteJob(job.id)}
+                  className={buttonClass}
+                >
+                  <TrashIcon className="w-4 h-4" />
+                  Delete
                 </button>
               </div>
             </div>
 
             {openJobId === job.id && (
-              <div className="mt-2 p-2 bg-gray-50 rounded border whitespace-pre-line">
+              <div className="mt-2 p-2 bg-gray-50 rounded border whitespace-pre-line text-gray-800">
                 {job.descri}
               </div>
             )}
 
             {openCandidatesJobId === job.id && (
-              <ul className="mt-2 p-2 bg-gray-50 rounded border space-y-1">
+              <ul className="mt-2 p-2 bg-gray-50 rounded border space-y-1 text-gray-800">
                 {job.candidates.length > 0 ? (
                   job.candidates.map(c => (
                     <li key={c.id} className="text-sm border-b pb-1">
