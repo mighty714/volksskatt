@@ -8,6 +8,7 @@ export default function TalentNetworkSubmissions() {
   const [showFilter, setShowFilter] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const searchRef = useRef(null);
+  const controlsRef = useRef(null);
 
   useEffect(() => {
     try {
@@ -16,6 +17,29 @@ export default function TalentNetworkSubmissions() {
     } catch {
       setSubs([]);
     }
+  }, []);
+
+  // Click-outside and Escape handling for popovers
+  useEffect(() => {
+    const onClick = (e) => {
+      if (!controlsRef.current) return;
+      if (!controlsRef.current.contains(e.target)) {
+        setShowFilter(false);
+        setShowSearch(false);
+      }
+    };
+    const onKey = (e) => {
+      if (e.key === 'Escape') {
+        setShowFilter(false);
+        setShowSearch(false);
+      }
+    };
+    document.addEventListener('mousedown', onClick);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onClick);
+      document.removeEventListener('keydown', onKey);
+    };
   }, []);
 
   const filtered = useMemo(() => {
@@ -70,7 +94,7 @@ export default function TalentNetworkSubmissions() {
       <div className="bg-white rounded-xl border border-slate-200 p-4">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-semibold">Talent Network Submissions</h1>
-          <div className="relative flex items-center gap-2">
+          <div ref={controlsRef} className="relative flex items-center gap-2">
             <button
               title="Search"
               aria-label="Search"

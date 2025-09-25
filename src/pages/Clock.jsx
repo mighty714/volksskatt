@@ -1,5 +1,9 @@
 import { useState, useEffect } from "react";
+<<<<<<< HEAD
 import { FaSignInAlt, FaSignOutAlt, FaUtensils, FaFileCsv, FaSearch, FaFilter } from "react-icons/fa";
+=======
+import { FaSignInAlt, FaSignOutAlt, FaUtensils, FaFileCsv } from "react-icons/fa";
+>>>>>>> e6b5f985d23d3040621334bb75719e3047597835
 import { motion, AnimatePresence } from "framer-motion";
 
 const quotes = [
@@ -15,6 +19,7 @@ const quotes = [
   "Take care of your employees and they’ll take care of your business. – Richard Branson",
 ];
 
+<<<<<<< HEAD
 // Minimum required work duration before Logout (in minutes)
 // Change this to 480 for 8 hours in production; currently settable for testing
 const MIN_REQUIRED_MINUTES = 1;
@@ -29,6 +34,14 @@ const getDeviceType = () => {
   } catch {
     return "Laptop/Desktop";
   }
+=======
+// Helper to detect device type
+const getDeviceType = () => {
+  const ua = navigator.userAgent;
+  return /Mobi|Android|iPhone|iPad|iPod|BlackBerry|Windows Phone/i.test(ua)
+    ? "Mobile"
+    : "Laptop/Desktop";
+>>>>>>> e6b5f985d23d3040621334bb75719e3047597835
 };
 
 export default function ClockDashboard() {
@@ -37,6 +50,7 @@ export default function ClockDashboard() {
   const [currentLunchTaken, setCurrentLunchTaken] = useState(false);
   const [quoteIndex, setQuoteIndex] = useState(new Date().getDate() % quotes.length);
   const [toast, setToast] = useState(null); // toast message
+<<<<<<< HEAD
   const [toastVariant, setToastVariant] = useState("success"); // success | error
   const [lunchCompleted, setLunchCompleted] = useState(false); // once lunch start+end taken
   const [showSearch, setShowSearch] = useState(false);
@@ -46,6 +60,8 @@ export default function ClockDashboard() {
   const [empIdInput, setEmpIdInput] = useState("");
   const [empNameInput, setEmpNameInput] = useState("");
   const [lastSavedAttendance, setLastSavedAttendance] = useState(null);
+=======
+>>>>>>> e6b5f985d23d3040621334bb75719e3047597835
 
   // Toast auto-hide
   useEffect(() => {
@@ -82,6 +98,7 @@ export default function ClockDashboard() {
     return `${h}:${m.toString().padStart(2, "0")}`;
   };
 
+<<<<<<< HEAD
   // Precise worked milliseconds excluding lunch (handles ongoing lunch too)
   const getWorkedMs = (r, now) => {
     if (!r?.inRaw) return 0;
@@ -155,6 +172,16 @@ export default function ClockDashboard() {
         id: prev.length + 1,
         empId: empIdInput.trim() || "-",
         empName: empNameInput.trim() || "-",
+=======
+  const handleLogin = () => {
+    if (!window.confirm("Are you sure you want to Login?")) return;
+    const now = new Date();
+    const deviceType = getDeviceType();
+    setRows([
+      ...rows,
+      {
+        id: rows.length + 1,
+>>>>>>> e6b5f985d23d3040621334bb75719e3047597835
         date: formatDate(now),
         device: deviceType,
         clockIn: formatTime(now),
@@ -171,6 +198,7 @@ export default function ClockDashboard() {
     ]);
     setLoggedIn(true);
     setCurrentLunchTaken(false);
+<<<<<<< HEAD
     setLunchCompleted(false);
     setToastVariant("success");
     setToast("✅ Login Successful");
@@ -316,11 +344,80 @@ export default function ClockDashboard() {
 
   return (
     <section className="bg-white p-6 rounded-xl shadow-md">
+=======
+    setToast("✅ Login Successful");
+  };
+
+  const handleLunchStart = () => {
+    if (!window.confirm("Are you sure you want to take Lunch Break?")) return;
+    const now = new Date();
+    const updated = [...rows];
+    const last = updated[updated.length - 1];
+    last.lunchStart = formatTime(now);
+    last.lunchStartRaw = now.getTime();
+    setRows(updated);
+    setCurrentLunchTaken(true);
+  };
+
+  const handleLunchEnd = () => {
+    if (!window.confirm("Are you sure you want to End Lunch Break?")) return;
+    const now = new Date();
+    const updated = [...rows];
+    const last = updated[updated.length - 1];
+    last.lunchEnd = formatTime(now);
+    last.lunchEndRaw = now.getTime();
+    setRows(updated);
+    setCurrentLunchTaken(false);
+  };
+
+  const handleLogout = () => {
+    if (!window.confirm("Are you sure you want to Logout?")) return;
+    const now = new Date();
+    const updated = [...rows];
+    const last = updated[updated.length - 1];
+    last.clockOut = formatTime(now);
+    last.outRaw = now.getTime();
+    last.hours = formatHours(calculateMinutes(last));
+    setRows(updated);
+    setLoggedIn(false);
+    setCurrentLunchTaken(false);
+    setToast("👋 Logout Successful");
+  };
+
+  const handleExport = () => {
+    if (!window.confirm("Are you sure you want to Export CSV?")) return;
+    const headers = ["Date,Device,Clock In,Lunch Start,Lunch End,Clock Out,Hours,Remarks"];
+    const csvRows = rows.map(
+      (r) => `${r.date},${r.device || "-"},${r.clockIn},${r.lunchStart},${r.lunchEnd},${r.clockOut},${r.hours},${r.remarks}`
+    );
+    const csv = [...headers, ...csvRows].join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "clock.csv";
+    a.click();
+  };
+
+  const handleRemarkChange = (id, value) => {
+    setRows(rows.map((r) => (r.id === id ? { ...r, remarks: value } : r)));
+  };
+
+  const totalMinutes = rows.reduce((sum, r) => sum + calculateMinutes(r), 0);
+  const totalHoursStr = formatHours(totalMinutes);
+  const averageMinutes = rows.length ? totalMinutes / rows.length : 0;
+  const averageHoursStr = formatHours(averageMinutes);
+  const todayDate = formatDate(new Date());
+
+  return (
+    <div className="max-w-7xl mx-auto mt-5 p-6 bg-gray-50 rounded-xl relative">
+>>>>>>> e6b5f985d23d3040621334bb75719e3047597835
 
       {/* Toast Notification */}
       <AnimatePresence>
         {toast && (
           <motion.div
+<<<<<<< HEAD
             {...toastMotionProps}
             className={`fixed top-5 right-5 ${toastBgClass} text-white px-4 py-2 rounded-lg shadow-lg z-50`}
           >
@@ -453,6 +550,68 @@ export default function ClockDashboard() {
           <div className="mt-2 text-xs text-slate-600">Open Attendance page to see the full list and export CSV.</div>
         </div>
       )}
+=======
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 50 }}
+            transition={{ duration: 0.4 }}
+            className="fixed top-5 right-5 bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg z-50"
+          >
+            {toast}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <h1 className="text-3xl font-semibold mb-4 text-black">Clock Dashboard</h1>
+
+      {/* Daily Motivational Quote */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={quoteIndex}
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 10 }}
+          transition={{ duration: 0.5 }}
+          className="mb-6 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded-lg shadow-sm"
+        >
+          <p className="text-black italic text-center">💡 {dailyQuote}</p>
+        </motion.div>
+      </AnimatePresence>
+
+      {/* Buttons */}
+      <div className="flex flex-wrap items-center justify-between mb-6 gap-4">
+        <div className="flex gap-3">
+          {!loggedIn ? (
+            <button onClick={handleLogin} className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-full shadow hover:bg-blue-500 transition transform hover:scale-105">
+              <FaSignInAlt /> Login
+            </button>
+          ) : (
+            <button onClick={handleLogout} className="flex items-center gap-2 px-6 py-3 bg-red-600 text-white rounded-full shadow hover:bg-red-500 transition transform hover:scale-105">
+              <FaSignOutAlt /> Logout
+            </button>
+          )}
+        </div>
+
+        <div className="flex gap-3">
+          {loggedIn && !currentLunchTaken && (
+            <button onClick={handleLunchStart} className="flex items-center gap-2 px-6 py-3 bg-yellow-400 text-white rounded-full shadow hover:bg-yellow-300 transition transform hover:scale-105">
+              <FaUtensils /> Lunch Start
+            </button>
+          )}
+          {loggedIn && currentLunchTaken && (
+            <button onClick={handleLunchEnd} className="flex items-center gap-2 px-6 py-3 bg-orange-400 text-white rounded-full shadow hover:bg-orange-300 transition transform hover:scale-105">
+              <FaUtensils /> Lunch End
+            </button>
+          )}
+        </div>
+
+        <div>
+          <button onClick={handleExport} className="flex items-center gap-2 px-6 py-3 bg-gray-800 text-white rounded-full shadow hover:bg-gray-700 transition transform hover:scale-105">
+            <FaFileCsv /> Export CSV
+          </button>
+        </div>
+      </div>
+>>>>>>> e6b5f985d23d3040621334bb75719e3047597835
 
       {/* Summary */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -471,11 +630,15 @@ export default function ClockDashboard() {
       </div>
 
       {/* Clock Table */}
+<<<<<<< HEAD
       {rows.length > 0 && (
+=======
+>>>>>>> e6b5f985d23d3040621334bb75719e3047597835
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white rounded-lg shadow">
           <thead className="bg-gray-100 text-black">
             <tr>
+<<<<<<< HEAD
               <th className="p-3 text-left text-black">Emp ID</th>
               <th className="p-3 text-left text-black">Emp Name</th>
               
@@ -486,11 +649,25 @@ export default function ClockDashboard() {
               <th className="p-3 text-left text-black">Clock Out</th>
               <th className="p-3 text-left text-black">Hours</th>
               <th className="p-3 text-left text-black">Status</th>
+=======
+              <th className="p-3 text-left text-black">Date</th>
+              <th className="p-3 text-left text-black">Device</th>
+              <th className="p-3 text-left text-black">Login</th>
+              <th className="p-3 text-left text-black">Lunch Start</th>
+              <th className="p-3 text-left text-black">Lunch End</th>
+              <th className="p-3 text-left text-black">Logout</th>
+              <th className="p-3 text-left text-black">Hours</th>
+              <th className="p-3 text-left text-black">Remarks</th>
+>>>>>>> e6b5f985d23d3040621334bb75719e3047597835
             </tr>
           </thead>
           <tbody>
             <AnimatePresence>
+<<<<<<< HEAD
               {displayedRows.map((r) => (
+=======
+              {rows.map((r) => (
+>>>>>>> e6b5f985d23d3040621334bb75719e3047597835
                 <motion.tr
                   key={r.id}
                   initial={{ opacity: 0, y: -10 }}
@@ -499,14 +676,20 @@ export default function ClockDashboard() {
                   transition={{ duration: 0.3 }}
                   className="border-b hover:bg-gray-50 transition duration-150"
                 >
+<<<<<<< HEAD
                   <td className="p-3 text-black">-</td>
                   <td className="p-3 text-black">-</td>
                   <td className="p-3 text-black">{r.date}</td>
+=======
+                  <td className="p-3 text-black">{r.date}</td>
+                  <td className="p-3 text-black">{r.device || "-"}</td>
+>>>>>>> e6b5f985d23d3040621334bb75719e3047597835
                   <td className="p-3 text-black">{r.clockIn}</td>
                   <td className="p-3 text-black">{r.lunchStart}</td>
                   <td className="p-3 text-black">{r.lunchEnd}</td>
                   <td className="p-3 text-black">{r.clockOut}</td>
                   <td className="p-3 text-black">{r.hours}</td>
+<<<<<<< HEAD
                   <td className="p-3 text-black">{getStatus(r)}</td>
                 </motion.tr>
               ))}
@@ -515,11 +698,28 @@ export default function ClockDashboard() {
                   <td colSpan={9} className="p-3 text-center text-gray-600">No results match your search/filter.</td>
                 </tr>
               )}
+=======
+                  <td className="p-3">
+                    <input
+                      type="text"
+                      value={r.remarks}
+                      onChange={(e) => handleRemarkChange(r.id, e.target.value)}
+                      placeholder="Add remark"
+                      className="w-full px-2 py-1 border rounded focus:outline-none focus:ring focus:border-blue-300 text-sm text-black"
+                    />
+                  </td>
+                </motion.tr>
+              ))}
+>>>>>>> e6b5f985d23d3040621334bb75719e3047597835
             </AnimatePresence>
           </tbody>
         </table>
       </div>
+<<<<<<< HEAD
       )}
     </section>
+=======
+    </div>
+>>>>>>> e6b5f985d23d3040621334bb75719e3047597835
   );
 }
