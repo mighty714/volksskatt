@@ -64,8 +64,8 @@ export default function Login() {
           </svg>
         </button>
       </header>
-      {/* Animated gradient background */}
-      <div className="absolute inset-0 -z-10 animated-gradient" />
+      {/* Screensaver-style animated background */}
+      <div className="absolute inset-0 -z-10 screensaver" />
 
       {/* Two-column layout: left welcome card, right login form */}
       <div className={`min-h-screen grid place-items-center px-4 transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'}`}>

@@ -14,7 +14,7 @@ const aboutTabs = [
   { id: 'about-meet', label: 'Meet Volksskatt' },
   { id: 'about-numbers', label: 'Progress in Numbers' },
   { id: 'about-values', label: 'Living Our Values' },
-  { id: 'about-approach', label: 'Our Approach' },
+  { id: 'about-our-approach', label: 'Our Approach' },
   { id: 'about-journey', label: 'Our Journey' },
   { id: 'about-stories', label: 'Stories of Progress' },
 ]
@@ -261,7 +261,7 @@ export default function Home() {
               </div>
               <nav className="px-6 py-6 space-y-4">
                 {[
-                  { id: 'home', label: 'Navigate your next' },
+                  
                   { id: 'about', label: 'About Us' },
                   { id: 'services', label: 'Services' },
                   { id: 'career', label: 'Careers' },
@@ -606,15 +606,15 @@ export default function Home() {
             </div>
 
             {/* Approach (replaces Purpose) */}
-            <div id="about-purpose" className="scroll-mt-24">
+            <div id="about-our-approach" className="scroll-mt-24">
               <h3 className="text-3xl md:text-4xl font-semibold mb-2 text-slate-900">Our Approach</h3>
               <p className="text-slate-700 max-w-3xl mb-8">
-                Our approach is built on three pillars
+                Our approach is built on Four pillars
               </p>
 
-              <div className="grid md:grid-cols-3 gap-7">
+              <div className="grid md:grid-cols-4 gap-7">
                 {/* Innovation at Core */}
-                <div className="group flip-card h-[260px]">
+                <div className="group flip-card h-[400px]">
                   <div className="flip-inner rounded-xl shadow-md">
                     <div className="flip-face flip-front rounded-xl bg-[#0f1422] text-white p-7">
                       <div className="flex items-start gap-4">
@@ -635,7 +635,7 @@ export default function Home() {
                         </svg>
                         <div>
                           <div className="text-2xl font-semibold mb-2">Innovation at Core</div>
-                          <p className="text-white/90 text-sm leading-relaxed">Constantly evolving with emerging technologies like AI, cloud computing, and automation.</p>
+                          <p className="text-white/90 text-sm leading-relaxed">We embrace innovation to deliver future-ready solutions that keep businesses ahead of the curve.</p>
                         </div>
                       </div>
                     </div>
@@ -643,7 +643,7 @@ export default function Home() {
                 </div>
 
                 {/* Client-Centric Focus */}
-                <div className="group flip-card h-[260px]">
+                <div className="group flip-card h-[400px]">
                   <div className="flip-inner rounded-xl shadow-md">
                     <div className="flip-face flip-front rounded-xl bg-[#0f1422] text-white p-7">
                       <div className="flex items-start gap-4">
@@ -665,7 +665,39 @@ export default function Home() {
                         </svg>
                         <div>
                           <div className="text-2xl font-semibold mb-2">Client‑Centric Focus</div>
-                          <p className="text-white/90 text-sm leading-relaxed">Every solution is tailored to solve real challenges, ensuring measurable business outcomes.</p>
+                          <p className="text-white/90 text-sm leading-relaxed">Our approach focuses on innovation, scalability, and long-term value to drive sustainable growth.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {/*Planet */}
+                <div className="group flip-card h-[400px]">
+                  <div className="flip-inner rounded-xl shadow-md">
+                    <div className="flip-face flip-front rounded-xl bg-[#0f1422] text-white p-7">
+                      <div className="flex items-start gap-4">
+                      <svg xmlns="http://www.w3.org/2000/svg"width="36" height="36" viewBox="0 0 24 24" fill="none"
+                           stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"className="shrink-0 text-indigo-400">
+                          <circle cx="12" cy="12" r="9"/>
+                          <path d="M2 12h20"/>
+                          <path d="M12 3c2.5 0 4.5 4 4.5 9s-2 9-4.5 9-4.5-4-4.5-9 2-9 4.5-9z"/>
+                      </svg>
+                        <div>
+                          <div className="text-2xl font-semibold mb-2">Planet</div>
+                          <p className="text-white/80 text-sm leading-relaxed">We deliver long-lasting impact through out a action as a company and through our pacts with stakeholders for a more sustainable future.</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flip-face flip-back rounded-xl text-white p-7 bg-gradient-to-br from-indigo-600 via-sky-600 to-emerald-500">
+                      <div className="flex items-start gap-4">
+                      <svg xmlns="http://www.w3.org/2000/svg"width="36" height="36" viewBox="0 0 24 24" fill="none"stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"className="shrink-0 text-white">
+                      <circle cx="12" cy="12" r="9"/>
+                      <path d="M2 12h20"/>
+                      <path d="M12 3c2.5 0 4.5 4 4.5 9s-2 9-4.5 9-4.5-4-4.5-9 2-9 4.5-9z"/>
+                      </svg>
+                        <div>
+                          <div className="text-2xl font-semibold mb-2">Planet</div>
+                          <p className="text-white/90 text-sm leading-relaxed"><li><strong>107B+</strong><strong>Liters </strong>"of water harvested"</li><li><strong>73,000+​ Acres </strong>of land greened</li><li><strong>29%​ Reduction in energy consumption</strong> (compared to FY20 baseline)</li></p>
                         </div>
                       </div>
                     </div>
@@ -673,7 +705,7 @@ export default function Home() {
                 </div>
 
                 {/* Trusted Partnerships */}
-                <div className="group flip-card h-[260px]">
+                <div className="group flip-card h-[400px]">
                   <div className="flip-inner rounded-xl shadow-md">
                     <div className="flip-face flip-front rounded-xl bg-[#0f1422] text-white p-7">
                       <div className="flex items-start gap-4">
@@ -695,7 +727,7 @@ export default function Home() {
                         </svg>
                         <div>
                           <div className="text-2xl font-semibold mb-2">Trusted Partnerships</div>
-                          <p className="text-white/90 text-sm leading-relaxed">Beyond services, we build long‑term collaborations based on trust, transparency, and shared success.</p>
+                          <p className="text-white/90 text-sm leading-relaxed">We work hand-in-hand with clients, ensuring sustainable growth, innovation, and mutual value creation.</p>
                         </div>
                       </div>
                     </div>

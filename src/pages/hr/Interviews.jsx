@@ -1,25 +1,13 @@
 // Interviews.tsx
 import { useState, useEffect } from "react";
-import { formatDate } from "./utils/dateUtils";
+import { FaSearch, FaFilter, FaEye, FaEdit, FaTrash, FaPlus } from "react-icons/fa";
+import { formatDate } from "../utils/dateUtils";
 
 const initialInterviews = [
   { id: 1, candidate: "Jane Doe", schedule: "2025-09-23 10:00", mode: "online", interviewer: "John" },
   { id: 2, candidate: "Mark Lee", schedule: "2025-09-24 15:30", mode: "in-person", interviewer: "Sara" },
   { id: 2, candidate: "Divya", schedule: "2025-09-24 15:30", mode: "in-person", interviewer: "Nagesh" },
 
-  { id: 1, candidate: "Jane Doe", schedule: "2025-09-23 10:00", mode: "online", interviewer: "John" },
-  { id: 2, candidate: "Mark Lee", schedule: "2025-09-24 15:30", mode: "in-person", interviewer: "Sara" },
-  { id: 2, candidate: "Divya", schedule: "2025-09-24 15:30", mode: "in-person", interviewer: "Nagesh" },
-  { id: 1, candidate: "Jane Doe", schedule: "2025-09-23 10:00", mode: "online", interviewer: "John" },
-  { id: 2, candidate: "Mark Lee", schedule: "2025-09-24 15:30", mode: "in-person", interviewer: "Sara" },
-  { id: 2, candidate: "Divya", schedule: "2025-09-24 15:30", mode: "in-person", interviewer: "Nagesh" },
-  { id: 1, candidate: "Jane Doe", schedule: "2025-09-23 10:00", mode: "online", interviewer: "John" },
-  { id: 2, candidate: "Mark Lee", schedule: "2025-09-24 15:30", mode: "in-person", interviewer: "Sara" },
-  { id: 2, candidate: "Divya", schedule: "2025-09-24 15:30", mode: "in-person", interviewer: "Nagesh" },
-
-  { id: 1, candidate: "Jane Doe", schedule: "2025-09-23 10:00", mode: "online", interviewer: "John" },
-  { id: 2, candidate: "Mark Lee", schedule: "2025-09-24 15:30", mode: "in-person", interviewer: "Sara" },
-  { id: 2, candidate: "Divya", schedule: "2025-09-24 15:30", mode: "in-person", interviewer: "Nagesh" },
 ];
 
 export default function Interviews() {
@@ -35,6 +23,7 @@ export default function Interviews() {
   const [fromAt, setFromAt] = useState(""); // date string 'YYYY-MM-DD'
   const [toAt, setToAt] = useState("");   // date string 'YYYY-MM-DD'
   const [showSearch, setShowSearch] = useState(false);
+  const [showFilter, setShowFilter] = useState(false);
   const [fromFocused, setFromFocused] = useState(false);
   const [toFocused, setToFocused] = useState(false);
 
@@ -112,14 +101,10 @@ export default function Interviews() {
               aria-label="Toggle search"
               title="Search"
             >
-              {/* magnifier icon */}
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
-                <circle cx="11" cy="11" r="7" />
-                <path d="M21 21l-3.8-3.8" />
-              </svg>
+              <FaSearch className="w-4 h-4" />
             </button>
             {showSearch && (
-              <div className="absolute right-0 top-11 z-20 bg-white border border-gray-200 rounded-md shadow p-2">
+              <div className="absolute right-0 top-11 z-20 bg-white border border-gray-200 rounded-md shadow p-2 animate-pop-bounce">
                 <input
                   autoFocus
                   value={query}
@@ -129,41 +114,64 @@ export default function Interviews() {
                 />
               </div>
             )}
-            <div className="relative">
-              <input
-                type="date"
-                value={fromAt}
-                onChange={(e) => setFromAt(e.target.value)}
-                onFocus={() => setFromFocused(true)}
-                onBlur={() => setFromFocused(false)}
-                className={`px-3 py-2 rounded border border-gray-300 text-sm bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-200 date-clean ${!fromAt ? 'is-empty' : ''}`}
-                aria-label="Start date"
-              />
-              {(!fromAt && !fromFocused) && (
-                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs">Start Date</span>
-              )}
-            </div>
-            <div className="relative">
-              <input
-                type="date"
-                value={toAt}
-                onChange={(e) => setToAt(e.target.value)}
-                onFocus={() => setToFocused(true)}
-                onBlur={() => setToFocused(false)}
-                className={`px-3 py-2 rounded border border-gray-300 text-sm bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-200 date-clean ${!toAt ? 'is-empty' : ''}`}
-                aria-label="End date"
-              />
-              {(!toAt && !toFocused) && (
-                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs">End Date</span>
-              )}
-            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowFilter((v) => !v)}
+              className="w-9 h-9 grid place-items-center rounded border border-gray-300 bg-white text-slate-700 hover:bg-gray-50"
+              aria-label="Toggle filters"
+              title="Filter"
+            >
+              <FaFilter className="w-4 h-4" />
+            </button>
+
+            {showFilter && (
+              <div className="absolute right-0 top-11 z-20 bg-white border border-gray-200 rounded-md shadow p-3 w-72 animate-pop-bounce">
+                <div className="text-xs text-gray-600 mb-2">Filter by Date</div>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div className="relative">
+                    <input
+                      type="date"
+                      value={fromAt}
+                      onChange={(e) => setFromAt(e.target.value)}
+                      onFocus={() => setFromFocused(true)}
+                      onBlur={() => setFromFocused(false)}
+                      className={`w-full px-3 py-2 rounded border border-gray-300 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-200 date-clean ${!fromAt ? 'is-empty' : ''}`}
+                      aria-label="Start date"
+                    />
+                    {(!fromAt && !fromFocused) && (
+                      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs">Start Date</span>
+                    )}
+                  </div>
+                  <div className="relative">
+                    <input
+                      type="date"
+                      value={toAt}
+                      onChange={(e) => setToAt(e.target.value)}
+                      onFocus={() => setToFocused(true)}
+                      onBlur={() => setToFocused(false)}
+                      className={`w-full px-3 py-2 rounded border border-gray-300 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-200 date-clean ${!toAt ? 'is-empty' : ''}`}
+                      aria-label="End date"
+                    />
+                    {(!toAt && !toFocused) && (
+                      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs">End Date</span>
+                    )}
+                  </div>
+                </div>
+                <div className="mt-3 flex items-center justify-end gap-2">
+                  <button onClick={() => { setFromAt(""); setToAt(""); }} className="px-2 py-1 rounded text-xs bg-gray-200 text-gray-800">Reset</button>
+                  <button onClick={() => setShowFilter(false)} className="px-2 py-1 rounded text-xs bg-slate-900 text-white">Close</button>
+                </div>
+              </div>
+            )}
           </div>
           <button
-            className="px-4 py-2 bg-sky-600 hover:bg-sky-700 transition text-white text-sm font-medium rounded"
+            className="w-10 h-10 grid place-items-center rounded-full bg-sky-600 text-white shadow hover:bg-sky-700 transition transform hover:scale-110 active:scale-95"
             aria-label="Schedule a new interview"
+            title="New Interview"
             onClick={openForm}
           >
-            + New Interview
+            <FaPlus className="w-4 h-4" />
           </button>
         </div>
       </header>
@@ -255,25 +263,28 @@ export default function Interviews() {
                 <td className="p-3">
                   <div className="flex items-center justify-center gap-2">
                     <button
-                      className="px-2 py-1 rounded text-xs bg-green-500 text-white  hover:bg-gray-100"
+                      className="w-9 h-9 grid place-items-center rounded-full bg-blue-500 text-white shadow hover:bg-blue-600 transition transform hover:scale-110 active:scale-95"
                       onClick={() => setViewItem(row)}
                       aria-label="View details"
+                      title="View"
                     >
-                      View
+                      <FaEye className="w-4 h-4" />
                     </button>
                     <button
-                      className="px-2 py-1 rounded text-xs bg-amber-500 text-white hover:bg-amber-600"
+                      className="w-9 h-9 grid place-items-center rounded-full bg-amber-500 text-white shadow hover:bg-amber-600 transition transform hover:scale-110 active:scale-95"
                       onClick={() => onEdit(row)}
                       aria-label="Edit interview"
+                      title="Edit"
                     >
-                      Edit
+                      <FaEdit className="w-4 h-4" />
                     </button>
                     <button
-                      className="px-2 py-1 rounded text-xs bg-red-600 text-white hover:bg-red-700"
+                      className="w-9 h-9 grid place-items-center rounded-full bg-red-600 text-white shadow hover:bg-red-700 transition transform hover:scale-110 active:scale-95"
                       onClick={() => onDelete(row.uid)}
                       aria-label="Delete interview"
+                      title="Delete"
                     >
-                      Delete
+                      <FaTrash className="w-4 h-4" />
                     </button>
                   </div>
                 </td>

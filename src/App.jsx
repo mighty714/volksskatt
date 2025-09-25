@@ -1,16 +1,21 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/Layout'
 import Login from './pages/Login'
-import Home from './pages/Home'
-import Jobspost from './pages/Jobspost'
+import SignInPublic from './pages/jobs-user/SignInPublic'
+import SignUpPublic from './pages/jobs-user/SignUpPublic'
+import ForgotPasswordPublic from './pages/jobs-user/ForgotPasswordPublic'
+import Home from './pages/hr/Home'
+import Jobspost from './pages/jobs-user/Jobspost'
+import JoinNetwork from './pages/jobs-user/JoinNetwork'
 import CareersHome from './pages/CareersHome'
-import Dashboard from './pages/Dashboard'
+import Dashboard from './pages/hr/Dashboard'
 import Clock from './pages/Clock'
-import Attendance from './pages/Attendance'
-import Jobs from './pages/Jobs'
+import Attendance from './pages/hr/Attendance'
+import Jobs from './pages/hr/Jobs'
 import CandidateProfile from './pages/CandidateProfile'
-import Interviews from './pages/Interviews'
-import Documents from './pages/Documents'
+import Interviews from './pages/hr/Interviews'
+import Documents from './pages/hr/Documents'
+import TalentNetworkSubmissions from './pages/hr/TalentNetworkSubmissions'
 import Offers from './pages/Offers'
 import { isAuthenticated } from './services/auth'
 
@@ -25,6 +30,10 @@ export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/signin" element={<SignInPublic />} />
+      <Route path="/signup" element={<SignUpPublic />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPublic />} />
+      <Route path="/join-network" element={<JoinNetwork />} />
 
       {/* Public Home */}
       <Route path="/" element={<Home />} />
@@ -48,6 +57,7 @@ export default function App() {
         <Route path="candidates/:id" element={<CandidateProfile />} />
         <Route path="interviews" element={<Interviews />} />
         <Route path="documents" element={<Documents />} />
+        <Route path="talent-network" element={<TalentNetworkSubmissions />} />
         <Route path="offers" element={<Offers />} />
       </Route>
 
