@@ -1,0 +1,9 @@
+* text=auto eol=lf
+*.js text eol=lf
+*.jsx text eol=lf
+*.json text eol=lf
+*.css text eol=lf
+*.md text eol=lf
+
+# Reduce merge conflicts on lockfile (last-wins/union strategy)
+package-lock.json merge=union

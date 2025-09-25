@@ -51,9 +51,9 @@ export default function CareersHome() {
           <button onClick={() => navigate('/Home')} className="hover:underline">Home</button>
             <button onClick={() => navigate('/careers')} className="hover:underline">Careers Home</button>
             <button onClick={() => navigate('/jobspost')} className="hover:underline">Search for Jobs</button>
-            <button className="hover:underline">Join Our Talent Network</button>
-            <button className="hover:underline" onClick={() => navigate('/signin')}>Sign In</button>
-            <button className="hover:underline" onClick={() => navigate('/signup')}>Sign Up</button>
+            <button className="hover:underline" onClick={() => navigate('/join-network')}>Join Our Talent Network</button>
+            <button className="ml-1 text-sky-700 hover:underline font-medium"onClick={() => navigate('/signin')}>Login </button>
+          <button className="ml-1 text-sky-700 hover:underline font-medium"onClick={() => navigate('/signup')}>Sign Up </button>
           </div>
         </div>
       </nav>
