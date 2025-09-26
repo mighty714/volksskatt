@@ -261,12 +261,10 @@ export default function Home() {
               </div>
               <nav className="px-6 py-6 space-y-4">
                 {[
-                  
                   { id: 'about', label: 'About Us' },
                   { id: 'services', label: 'Services' },
                   { id: 'career', label: 'Careers' },
                   { id: 'contact', label: 'Contact Us' },
-                  { id: 'login', label: 'Login' },
                 ].map((item) => (
                   item.id === 'career' ? (
                     <div key={item.id} className="space-y-2">
@@ -307,11 +305,7 @@ export default function Home() {
                       key={item.id}
                       onClick={() => {
                         setMenuOpen(false)
-                        if (item.id === 'login') {
-                          navigate('/login')
-                        } else {
-                          scrollTo(item.id)
-                        }
+                        scrollTo(item.id)
                       }}
                       className="block w-full text-left text-lg font-semibold"
                     >
@@ -319,6 +313,15 @@ export default function Home() {
                     </button>
                   )
                 ))}
+                {/* Dedicated Login section */}
+                <div className="pt-4">
+                  <div className="text-slate-900 font-semibold mb-2">Login</div>
+                  <div className="grid grid-cols-1 gap-2">
+                    <button onClick={() => { setMenuOpen(false); navigate('/login-admin'); }} className="w-full text-left text-base text-slate-700 hover:text-slate-900">Admin Login</button>
+                    <button onClick={() => { setMenuOpen(false); navigate('/login-hr'); }} className="w-full text-left text-base text-slate-700 hover:text-slate-900">HR Login</button>
+                    <button onClick={() => { setMenuOpen(false); navigate('/login-employee'); }} className="w-full text-left text-base text-slate-700 hover:text-slate-900">Employee Login</button>
+                  </div>
+                </div>
                 <div className="pt-4 text-slate-600 text-sm">
                   <div className="font-semibold mb-2">volksskatt</div>
                   <ul className="space-y-1">
@@ -383,9 +386,15 @@ export default function Home() {
               <p className="mt-4 text-white/90 text-lg">
                 {slides[slide].caption}
               </p>
-              <div className="mt-6 flex gap-3">
-                <button onClick={() => navigate('/login')} className="px-5 py-2 rounded-full bg-white/90 text-gray-900 font-medium hover:bg-white">
-                  Login to App
+              <div className="mt-6 flex flex-wrap gap-3">
+                <button onClick={() => navigate('/login-admin')} className="px-5 py-2 rounded-full bg-white/90 text-gray-900 font-medium hover:bg-white">
+                  Admin Login
+                </button>
+                <button onClick={() => navigate('/login-hr')} className="px-5 py-2 rounded-full bg-white/90 text-gray-900 font-medium hover:bg-white">
+                  HR Login
+                </button>
+                <button onClick={() => navigate('/login-employee')} className="px-5 py-2 rounded-full bg-white/90 text-gray-900 font-medium hover:bg-white">
+                  Employee Login
                 </button>
                 <button onClick={() => scrollTo('about')} className="px-5 py-2 rounded-full border border-white/60 font-medium hover:bg-white/10">
                   Learn More

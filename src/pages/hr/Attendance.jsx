@@ -1,28 +1,38 @@
 import { useEffect, useState } from "react";
 import { FaSearch, FaFilter, FaFileCsv } from "react-icons/fa";
 
-export default function Attendance() {
+export default function Attendance({ sourceKey = 'attendance_hr' }) {
   const [rows, setRows] = useState([]);
   const [showSearch, setShowSearch] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState("all"); // all | today | active | lunch | out
+  const [dataKey, setDataKey] = useState(sourceKey); // 'attendance_hr' | 'attendance_emp'
 
   useEffect(() => {
     try {
-      const data = JSON.parse(localStorage.getItem("attendanceRows") || "[]");
-      setRows(Array.isArray(data) ? data : []);
+      const primary = JSON.parse(localStorage.getItem(dataKey) || "[]");
+      if (dataKey === 'attendance_hr') {
+        // HR must NOT see HR/Admin entries via legacy fallback
+        setRows(Array.isArray(primary) ? primary : []);
+      } else {
+        // For other views (e.g., Admin), retain legacy fallback for compatibility
+        const legacy = JSON.parse(localStorage.getItem("attendanceRows") || "[]");
+        const merged = Array.isArray(primary) && primary.length ? primary : legacy;
+        setRows(Array.isArray(merged) ? merged : []);
+      }
     } catch {
       setRows([]);
     }
-  }, []);
+  }, [dataKey]);
 
   const exportCsv = () => {
     if (!rows.length) return;
-    const headers = ["EmpId,EmpName,Date,Clock In,Lunch Start,Lunch End,Clock Out,Hours,Status"];
+    const headers = ["EmpId,EmpName,Role,Date,Clock In,Lunch Start,Lunch End,Clock Out,Hours,Status"];
     const csvRows = rows.map((r) => [
       r.empId,
       r.empName,
+      r.empRole || '',
       r.date,
       r.in || "-",
       r.lunchStart || "-",
@@ -59,6 +69,7 @@ export default function Attendance() {
     return [
       r.empId,
       r.empName,
+      r.empRole,
       r.date,
       r.in,
       r.lunchStart,
@@ -76,6 +87,17 @@ export default function Attendance() {
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-bold text-gray-900">Attendance</h2>
         <div className="flex items-center gap-2 relative">
+          {/* Dataset selector: HR vs Employee */}
+          <select
+            value={dataKey}
+            onChange={(e) => setDataKey(e.target.value)}
+            className="h-10 px-3 rounded-md border border-gray-300 bg-white text-slate-800 shadow text-sm"
+            aria-label="Select dataset"
+            title="Select dataset"
+          >
+            <option value="attendance_hr">HR Records</option>
+            <option value="attendance_emp">Employee Records</option>
+          </select>
           <button
             type="button"
             title="Search"
@@ -147,6 +169,7 @@ export default function Attendance() {
             <tr className="bg-sky-50 text-left text-slate-700 border-b border-sky-100">
               <th className="p-3 font-medium sticky top-0 bg-sky-50">EmpId</th>
               <th className="p-3 font-medium sticky top-0 bg-sky-50">EmpName</th>
+              <th className="p-3 font-medium sticky top-0 bg-sky-50">Role</th>
               <th className="p-3 font-medium sticky top-0 bg-sky-50">Date</th>
               <th className="p-3 font-medium sticky top-0 bg-sky-50">Clock In</th>
               <th className="p-3 font-medium sticky top-0 bg-sky-50">Lunch Start</th>

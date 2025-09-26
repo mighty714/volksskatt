@@ -2,7 +2,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { logout, getUser } from '../services/auth'
 import { useState } from 'react'
 
-const NavItem = ({ to, label, icon, collapsed, iconClass = '' }) => (
+const NavItem = ({ to, label, icon, collapsed }) => (
   <div className="relative group">
     <NavLink
       to={to}
@@ -14,7 +14,7 @@ const NavItem = ({ to, label, icon, collapsed, iconClass = '' }) => (
         }`
       }
     >
-      <span className={`text-lg transition-transform duration-200 ease-out group-hover:scale-150 ${iconClass}`}>{icon}</span>
+      <span className="text-lg transition-transform duration-200 ease-out group-hover:scale-150">{icon}</span>
       {!collapsed && <span>{label}</span>}
     </NavLink>
     {collapsed && (
@@ -27,10 +27,9 @@ const NavItem = ({ to, label, icon, collapsed, iconClass = '' }) => (
   </div>
 )
 
-export default function Layout() {
+export default function EmployeeLayout() {
   const navigate = useNavigate()
   const user = getUser()
-  // pinned: user explicitly expands/collapses; no hover-driven expand
   const [pinned, setPinned] = useState(false)
   const expanded = pinned
 
@@ -44,53 +43,24 @@ export default function Layout() {
       data-sidebar={expanded ? 'expanded' : 'collapsed'}
       className={`min-h-screen relative grid ${expanded ? 'grid-cols-[260px,1fr]' : 'grid-cols-[80px,1fr]'} text-white`}
     >
-      {/* App-wide background */}
       <div className="absolute inset-0 -z-10 screensaver" />
-      {/* Sidebar */}
-      <aside
-        className="relative z-20 overflow-visible bg-white/10 backdrop-blur-xl border-r border-white/10 p-4 flex flex-col text-white"
-      >
+      <aside className="relative z-20 overflow-visible bg-white/10 backdrop-blur-xl border-r border-white/10 p-4 flex flex-col text-white">
         <div className={`flex items-center ${expanded ? 'gap-2 justify-start' : 'justify-center'} mb-6`}>
           <img src="/logo.png" alt="volksskatt logo" className="w-8 h-8 object-contain" />
           {expanded && <div className="font-semibold">volksskatt</div>}
         </div>
         <nav className="space-y-3">
-          <NavItem to="/app/dashboard" label="Dashboard" icon="🏠" collapsed={!expanded} />
-          <NavItem to="/app/clock" label="Clock" icon="⏱️" collapsed={!expanded} />
-          <NavItem to="/app/attendance" label="Attendance" icon="📋" collapsed={!expanded} />
-          <NavItem to="/app/jobs" label="Jobs" icon="💼" collapsed={!expanded} />
-          <NavItem to="/app/interviews" label="Interviews" icon="🗓️" collapsed={!expanded} />
-          <NavItem to="/app/documents" label="Documents" icon="📄" collapsed={!expanded} />
-          <NavItem to="/app/talent-network" label="Talent Network" icon="🧑‍💻" collapsed={!expanded} />
-          {(user?.role === 'hr' || user?.role === 'admin') && (
-            <NavItem to="/app/add-employee" label="Add Employee" icon="➕" iconClass="text-sky-400" collapsed={!expanded} />
+          <NavItem to="/employee/dashboard" label="Dashboard" icon="🏠" collapsed={!expanded} />
+          <NavItem to="/employee/clock" label="Clock" icon="⏱️" collapsed={!expanded} />
+          <NavItem to="/employee/attendance" label="Attendance" icon="📋" collapsed={!expanded} />
+          <NavItem to="/employee/documents" label="My Documents" icon="📄" collapsed={!expanded} />
+          <NavItem to="/employee/jobs" label="My Jobs" icon="💼" collapsed={!expanded} />
+          <NavItem to="/employee/leave" label="Leave" icon="🛫" collapsed={!expanded} />
+          {user?.role === 'admin' && (
+            <NavItem to="/admin/dashboard" label="Admin" icon="🛡️" collapsed={!expanded} />
           )}
-          {user?.role !== 'admin' && (
-            <NavItem to="/employee/dashboard" label="Employee" icon="🧑‍💼" collapsed={!expanded} />
-          )}
-          {/*<NavItem to="/app/offers" label="Offers" icon="🎯" collapsed={!expanded} />*/}
-          {/* Plain anchor ensures navigation out of /app to the public home contact section */}
-         {/* <div className="relative group">
-            <a
-              href="/#contact"
-              className={`flex items-center ${expanded ? 'gap-3' : 'justify-center'} px-4 py-2 rounded-xl text-sm font-medium transition border text-white/85 hover:bg-white/10 border-white/10`}
-            >
-              <span className="text-lg transition-transform duration-200 ease-out group-hover:scale-150">📞</span>
-              {expanded && <span>Contact Us</span>}
-            </a>
-            {!expanded && (
-              <div className="pointer-events-none absolute left-full top-1/2 -translate-y-1/2 ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <div className="px-3 py-1 rounded-lg bg-white text-slate-900 text-xs shadow-lg border border-slate-200 whitespace-nowrap">
-                  Contact Us
-                </div>
-              </div>
-            )}
-          </div>*/}
         </nav>
-        <div className={`mt-auto pt-6 text-xs text-white/70 ${expanded ? '' : 'text-center'}`}>
-          
-        </div>
-        <div className={`${expanded ? '' : 'text-center'} pt-3`}>
+        <div className={`${expanded ? '' : 'text-center'} pt-3 mt-auto`}>
           <button
             onClick={() => setPinned((v) => !v)}
             className="mx-auto rounded-full bg-white/10 border border-white/10 w-8 h-8 grid place-items-center text-sm hover:bg-white/20 transition"
@@ -102,18 +72,17 @@ export default function Layout() {
         </div>
       </aside>
 
-      {/* Main area */}
       <div className="grid grid-rows-[auto,1fr]">
         {/* Topbar */}
         <header className="backdrop-blur-xl bg-white/10 border-b border-white/10 text-white">
           <div className="px-6 py-3 flex items-center justify-between">
             <div className="text-sm flex items-center gap-3">
-              <span>Human Resource</span>
-              <span className="px-2 py-0.5 rounded-full bg-white/15 border border-white/20 text-xs">Area: HR</span>
+              <span>Employee</span>
+              <span className="px-2 py-0.5 rounded-full bg-white/15 border border-white/20 text-xs">Area: Employee</span>
             </div>
             <div className="flex items-center gap-4">
-              {/* Switch area button */}
-              {user?.role === 'admin' ? (
+              {/* Switch area buttons for admins */}
+              {user?.role === 'admin' && (
                 <>
                   <button
                     onClick={() => navigate('/admin/dashboard')}
@@ -122,23 +91,16 @@ export default function Layout() {
                     Switch to Admin
                   </button>
                   <button
-                    onClick={() => navigate('/employee/dashboard')}
+                    onClick={() => navigate('/app/dashboard')}
                     className="px-3 py-1.5 rounded bg-white/15 text-white text-sm border border-white/10 hover:bg-white/25"
                   >
-                    Switch to Employee
+                    Switch to HR
                   </button>
                 </>
-              ) : (
-                <button
-                  onClick={() => navigate('/employee/dashboard')}
-                  className="px-3 py-1.5 rounded bg-white/15 text-white text-sm border border-white/10 hover:bg-white/25"
-                >
-                  Switch to Employee
-                </button>
               )}
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-full bg-white/80 grid place-items-center text-slate-700">👤</div>
-                <span className="text-sm">{user?.fullName || 'User'}</span>
+                <span className="text-sm">{user?.fullName || 'Employee'}</span>
               </div>
               <button
                 onClick={onLogout}
@@ -156,4 +118,3 @@ export default function Layout() {
     </div>
   )
 }
-
