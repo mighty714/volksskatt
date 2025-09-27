@@ -26,7 +26,7 @@ export default function Attendance({ sourceKey = 'attendance_hr' }) {
     }
   }, [dataKey]);
 
-  const exportCsv = () => {
+  const exportCsv = () => {""
     if (!rows.length) return;
     const headers = ["EmpId,EmpName,Role,Date,Clock In,Lunch Start,Lunch End,Clock Out,Hours,Status"];
     const csvRows = rows.map((r) => [
